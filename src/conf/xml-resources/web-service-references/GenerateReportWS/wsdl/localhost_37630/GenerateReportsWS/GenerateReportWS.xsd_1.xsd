@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?><!-- Published by JAX-WS RI at http://jax-ws.dev.java.net. RI's version is Metro/2.2.0-1 (tags/2.2.0u1-7139; 2012-06-02T10:55:19+0000) JAXWS-RI/2.2.6-2 JAXWS/2.2 svn-revision#unknown. --><xs:schema xmlns:tns="http://WS.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://WS.com/">
+
+<xs:element name="generateReports" type="tns:generateReports"/>
+
+<xs:element name="generateReportsResponse" type="tns:generateReportsResponse"/>
+
+<xs:complexType name="generateReports">
+<xs:sequence>
+<xs:element name="accountNumber" type="xs:string" minOccurs="0"/>
+<xs:element name="billRunId" type="xs:string" minOccurs="0"/>
+<xs:element name="billId" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="generateReportsResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:int" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+</xs:schema>

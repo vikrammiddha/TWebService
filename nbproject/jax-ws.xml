@@ -5,5 +5,38 @@
       <implementation-class>com.WS.GenerateReportWS</implementation-class>
     </service>
   </services>
-  <clients/>
+  <clients>
+    <client name="GenerateReportWS">
+      <wsdl-url>http://localhost:37630/GenerateReportsWS/GenerateReportWS?wsdl</wsdl-url>
+      <local-wsdl-file>localhost_37630/GenerateReportsWS/GenerateReportWS.wsdl</local-wsdl-file>
+      <package-name forceReplace="true">com.WS_client</package-name>
+      <catalog-file>catalog.xml</catalog-file>
+      <wsimport-options>
+        <wsimport-option>
+          <wsimport-option-name>extension</wsimport-option-name>
+          <wsimport-option-value>true</wsimport-option-value>
+        </wsimport-option>
+        <wsimport-option>
+          <wsimport-option-name>verbose</wsimport-option-name>
+          <wsimport-option-value>true</wsimport-option-value>
+        </wsimport-option>
+        <wsimport-option>
+          <wsimport-option-name>wsdlLocation</wsimport-option-name>
+          <wsimport-option-value>http://localhost:37630/GenerateReportsWS/GenerateReportWS?wsdl</wsimport-option-value>
+        </wsimport-option>
+        <wsimport-option>
+          <wsimport-option-name>xnocompile</wsimport-option-name>
+          <wsimport-option-value>true</wsimport-option-value>
+        </wsimport-option>
+        <wsimport-option>
+          <wsimport-option-name>xendorsed</wsimport-option-name>
+          <wsimport-option-value>true</wsimport-option-value>
+        </wsimport-option>
+        <wsimport-option>
+          <wsimport-option-name>package</wsimport-option-name>
+          <wsimport-option-value>com.WS_client</wsimport-option-value>
+        </wsimport-option>
+      </wsimport-options>
+    </client>
+  </clients>
 </jax-ws>

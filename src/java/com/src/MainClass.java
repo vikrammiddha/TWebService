@@ -82,34 +82,35 @@ public class MainClass {
 		if(utils.isBlank(accountNumber) && utils.isBlank(billRunId) && utils.isBlank(billId)){			
 			return -1;	
 		}
-		
+		                               
 		try{
-			String query = utils.getQuery(appConfig);
-			
-			if(utils.isNotBlank(accountNumber)){
-				query = utils.addWhereClause("Espresso_Bill__Bill__r.Espresso_Bill__Account__r.Espresso_PC__Account_Number__c", accountNumber , query);
-			}
-			
-			if(utils.isNotBlank(billRunId)){
-				query = utils.addWhereClause("Espresso_Bill__Bill__r.Espresso_Bill__Bill_Run_ID__c", Integer.valueOf(billRunId) , query);
-			}
-			
-			if(utils.isNotBlank(billId)){
-				query = utils.addWhereClause("Espresso_Bill__Bill__r.Name", billId, query);
-			}
-			
-			LOGGER.info("Query prepared : " + query);
-			
-                        query += " limit 1";
-                        
-			biItemList = utils.populateBillItemBeans(query, querySfdc);
-			
-			LOGGER.info("Total number of Bill Item records queried: " + biItemList.size());
-								
-			// This is the place where Nimil's code will start with bitemList as Input;
+                    
+                    String query = utils.getQuery(appConfig);
+
+                    if(utils.isNotBlank(accountNumber)){
+                        query = utils.addWhereClause("Espresso_Bill__Bill__r.Espresso_Bill__Account__r.Espresso_PC__Account_Number__c", accountNumber , query);
+                    }
+
+                    if(utils.isNotBlank(billRunId)){
+                       query = utils.addWhereClause("Espresso_Bill__Bill__r.Espresso_Bill__Bill_Run_ID__c", Integer.valueOf(billRunId) , query);
+                    }
+
+                    if(utils.isNotBlank(billId)){
+                        query = utils.addWhereClause("Espresso_Bill__Bill__r.Name", billId, query);
+                    }
+
+                    LOGGER.info("Query prepared : " + query);
+
+                    query += " limit 1";
+
+                    biItemList = utils.populateBillItemBeans(query, querySfdc);
+
+                    LOGGER.info("Total number of Bill Item records queried: " + biItemList.size());
+
+                    // This is the place where Nimil's code will start with bitemList as Input;
 			
 		}catch(Exception e){
-			LOGGER.error("Exception occured while preparing data for Bill Item. Cause : " + e.getStackTrace());
+			LOGGER.error("Exception occured while preparing data for Bill Item. Cause : " + e.getMessage());
 		}
 		
 		return biItemList.size();

@@ -20,8 +20,8 @@ public class ReportUtils {
 	}
 	
 	public Boolean isNotBlank(String val){
-		
-		if(null != val && "" != val.trim()){
+		 LOGGER.info("Entered in isNotBlank . Val : " + val );
+		if(null != val && !"".equals(val.trim())){
 			return true;
 		}
 		return false;
@@ -48,6 +48,8 @@ public class ReportUtils {
         
         public String addWhereClause(String key, Integer value, String query){
 		
+                LOGGER.info("In Method addWhereClause. Key :" + key + ",value : " + value + ", query " + query);
+                
 		if(query.toUpperCase().contains("WHERE")){
 			query += " AND " + key + "=" + value;  
 		}else{
