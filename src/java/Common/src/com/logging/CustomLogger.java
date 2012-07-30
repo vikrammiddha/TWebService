@@ -1,19 +1,26 @@
 package Common.src.com.logging;
-import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Enumeration;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Layout;
-import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggingEvent;
 
 import Common.src.com.Config.AppConfig;
 import Common.src.com.Config.Configurator;
 
+/* 
+########################################################################### 
+# File..................: CustomLogger.java
+# Version...............: 1.0
+# Created by............: Vikram Middha
+# Created Date..........: 27-Jul-2012
+# Last Modified by......: 
+# Last Modified Date....: 
+# Description...........: Custom Logger class.
+# Change Request History: 				   							 
+########################################################################### 
+*/
 
 public class CustomLogger extends org.apache.log4j.FileAppender
 {

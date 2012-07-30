@@ -1,17 +1,23 @@
 package Common.src.com.util;
 
-import org.apache.log4j.Logger;
-
 import Common.src.com.Config.AppConfig;
 import Common.src.com.Exception.ResilientException;
 import Common.src.com.SFDC.EnterpriseSession;
+import org.apache.log4j.Logger;
 
-/**
- * This class is used to connect to SFDC and get the Session.
- * 
- * @author vmiddha
- *
- */
+/* 
+########################################################################### 
+# File..................: CustomLogger.java
+# Version...............: 1.0
+# Created by............: Vikram Middha
+# Created Date..........: 27-Jul-2012
+# Last Modified by......: 
+# Last Modified Date....: 
+# Description...........: Utility class for SFDC connectivity.
+# Change Request History: 				   							 
+########################################################################### 
+*/
+
 public final class SalesforceUtils {
 	
 	private static Logger LOGGER = Logger.getLogger(SalesforceUtils.class);

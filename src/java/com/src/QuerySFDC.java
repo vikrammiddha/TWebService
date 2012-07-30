@@ -1,31 +1,28 @@
 package com.src;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPElement;
-
-import org.apache.axis.message.MessageElement;
-import org.apache.log4j.Logger;
 import Common.src.com.Exception.ResilientException;
 import Common.src.com.SFDC.EnterpriseSession;
-
 import com.sforce.soap.partner.*;
 import com.sforce.soap.partner.sobject.SObject;
+import java.util.ArrayList;
+import java.util.HashMap;
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPElement;
+import org.apache.axis.message.MessageElement;
+import org.apache.log4j.Logger;
 
 
 /* 
 ########################################################################### 
-# Project Name..........: Resilient
 # File..................: QuerySFDC.java
 # Version...............: 1.0
 # Created by............: Vikram Middha
-# Created Date..........: 20-Jul-2010
+# Created Date..........: 27-Jul-2012
 # Last Modified by......: 
 # Last Modified Date....: 
-# Description...........: This class is used to query SFDC Objects. 
+# Description...........: This is a layer that interacts with SFDC. It has methods
+*                       for querying, updating, inserting data into SFDC.
 # Change Request History: 				   							 
 ########################################################################### 
 */
@@ -42,10 +39,9 @@ public class QuerySFDC {
 		this.eSession = eSession;
 	}
 	
-	 /**
+     /**
      * This function returns an array of hashmap where each hashmap is a pair of field-value pair of DNC object
-     * @param fields
-     * @param appConfig
+     * @param query
      * @return HashMap<String,Object>[]
      * @throws ResilientException
      */
@@ -172,7 +168,7 @@ public class QuerySFDC {
 		return val;
 	}
     
-	/**
+     /**
      * This function returns the API name of the field
      * @param object
      * @return String
@@ -198,54 +194,54 @@ public class QuerySFDC {
 		return name.toUpperCase();
 	}
   
-	/**
-     * This function creates an entry in Data Feed Job and updates is state to 'Started'
-     * @param fields
-     * @return String
-     * @throws ResilientException
-     */
+        /**
+        * This function creates an entry in Data Feed Job and updates is state to 'Started'
+        * @param fields
+        * @return String
+        * @throws ResilientException
+        */
 	
 	public String insertRecords(HashMap<String,Object>[] fields) throws ResilientException{
 	   
 	    String retId = "";
 	    HashMap<String,Object>[] IDs = null;
-		SObject[] sObjects = new SObject[fields.length];
-		try {
-			for(int i=0;i<fields.length;i++) 
-			{
-				HashMap<String,Object> hm = fields[i]; 
-				//hm = UtilNew.removeNull(hm);
-				String[] fieldNames = new String[hm.size()];
-				fieldNames = getKeysInArray(hm, fieldNames);
-				MessageElement[] elements = new MessageElement[hm.size()-1]; 
-				int elementNo = 0;
-				int elementCounter=0;
-				while(elementNo<hm.size()) 
-				{
-					if(!fieldNames[elementNo].equalsIgnoreCase("ObjectType"))
-						{
-							elements[elementCounter++] = new MessageElement(new QName(fieldNames[elementNo]),hm.get(fieldNames[elementNo]));
-						}
-					elementNo++;
-				}
-				String objectType = "";
-				if(hm.get("ObjectType")!=null)objectType = (String)hm.get("ObjectType");
-				sObjects[i] = new SObject(); 
-				sObjects[i].setId(new String(""));
-				sObjects[i].setType(objectType); 
-				sObjects[i].set_any(elements);
-				
-			}
-			
-			SaveResult[] sr = eSession.create(sObjects);
-			for(SaveResult s : sr){
-				if(!s.isSuccess()){
-					throw new ResilientException("Data Feed Job Exception");
-				}
-				else{
-					retId = s.getId();
-				}
-			}
+            SObject[] sObjects = new SObject[fields.length];
+            try {
+                    for(int i=0;i<fields.length;i++) 
+                    {
+                        HashMap<String,Object> hm = fields[i]; 
+                        //hm = UtilNew.removeNull(hm);
+                        String[] fieldNames = new String[hm.size()];
+                        fieldNames = getKeysInArray(hm, fieldNames);
+                        MessageElement[] elements = new MessageElement[hm.size()-1]; 
+                        int elementNo = 0;
+                        int elementCounter=0;
+                        while(elementNo<hm.size()) 
+                        {
+                                if(!fieldNames[elementNo].equalsIgnoreCase("ObjectType"))
+                                        {
+                                                elements[elementCounter++] = new MessageElement(new QName(fieldNames[elementNo]),hm.get(fieldNames[elementNo]));
+                                        }
+                                elementNo++;
+                        }
+                        String objectType = "";
+                        if(hm.get("ObjectType")!=null)objectType = (String)hm.get("ObjectType");
+                        sObjects[i] = new SObject(); 
+                        sObjects[i].setId(new String(""));
+                        sObjects[i].setType(objectType); 
+                        sObjects[i].set_any(elements);
+
+                    }
+
+                    SaveResult[] sr = eSession.create(sObjects);
+                    for(SaveResult s : sr){
+                            if(!s.isSuccess()){
+                                    throw new ResilientException("Data Feed Job Exception");
+                            }
+                            else{
+                                    retId = s.getId();
+                            }
+                    }
 		}
 		catch (ResilientException e) {
 			LOGGER.error("Failed to insert records for Data Feed Job in SalesForce" + e.getMessage());
@@ -264,14 +260,14 @@ public class QuerySFDC {
 	private String[] getKeysInArray(HashMap<String,Object> map, String[] array)
 	{
 	
-		Object keys[] = map.keySet().toArray(array);
-		
-		for (int i = 0; i < map.size(); i++)
-		{
-			array[i] = (String) keys[i];
-		}
-		
-		return array;
+            Object keys[] = map.keySet().toArray(array);
+
+            for (int i = 0; i < map.size(); i++)
+            {
+                    array[i] = (String) keys[i];
+            }
+
+            return array;
 	}
   
 	/**
@@ -285,80 +281,79 @@ public class QuerySFDC {
 	
 	public SaveResult[] update(String[] ids, HashMap<String,Object>[] fields) throws ResilientException{
 		
-		SObject sObjects[] = new SObject[fields.length];
-		
-		try{
-		for(int i=0;i<fields.length;i++) 
-		{
-			
-			String[] fieldNames = new String[fields[i].size()];
-			fieldNames = getKeysInArray(fields[i], fieldNames);
-			String objectType = "";
-			if(fields[i].get("ObjectType")!=null)objectType = (String)fields[i].get("ObjectType");
-			SObject sfObject = new SObject();
-			sfObject.setType(objectType);
-			sfObject.setId(new String(ids[i]));
-			
-			
-			int fieldNo = 0;
-			int elemno = 0;
-			int elemSize=0;
-			while(fieldNo<fields[i].size()) 
-			{
-				if(!fieldNames[fieldNo].equalsIgnoreCase("ObjectType"))
-				{
-					Object value = fields[i].get(fieldNames[fieldNo]);
-					if(value!=null && !(value.toString().trim().equals(""))) {
-						elemSize++;
-					}
-				}	
-						fieldNo++;
-				
-			
-			}
-			fieldNo = 0;
-			MessageElement[] elements = new MessageElement[elemSize];
-			ArrayList<String> nullFields = new ArrayList<String>();
-			while(fieldNo<fields[i].size()) 
-			{
-				String fld = fieldNames[fieldNo];
-				if(!fld.equalsIgnoreCase("ObjectType"))
-				{
-					Object value = fields[i].get(fieldNames[fieldNo]);
-					if(value==null)
-						{
-							nullFields.add(fld);
-						}
-					else
-						{
-							elements[elemno] = new MessageElement(new QName(fieldNames[fieldNo]), fields[i].get(fieldNames[fieldNo]));  
-							elemno++;
-						}
-				 }	
-				fieldNo++;
-			}
-			if(nullFields!=null && nullFields.size()>0)
-				{
-					String[] nullArray = new String[nullFields.size()];
-					for(int j=0;j<nullFields.size();j++) {
-						nullArray[j] = (String)nullFields.get(j);
-					}
-					sfObject.setFieldsToNull(nullArray);
-				}
-			
-			
-			sfObject.set_any(elements);
-			sObjects[i] = sfObject;
-			
-		}
-		
-		SaveResult[] sr = eSession.updateMore(sObjects,sObjects.length);
-		return sr;
-		}
-		catch (Exception e) {
-			LOGGER.error("Failed to update records  in SalesForce" + e.getMessage());
-			throw new ResilientException("Failed to update records  in SalesForce" + e.getMessage());
-		}
+            SObject sObjects[] = new SObject[fields.length];
+
+            try{
+            for(int i=0;i<fields.length;i++) 
+            {
+
+                String[] fieldNames = new String[fields[i].size()];
+                fieldNames = getKeysInArray(fields[i], fieldNames);
+                String objectType = "";
+                if(fields[i].get("ObjectType")!=null)objectType = (String)fields[i].get("ObjectType");
+                SObject sfObject = new SObject();
+                sfObject.setType(objectType);
+                sfObject.setId(new String(ids[i]));
+
+
+                int fieldNo = 0;
+                int elemno = 0;
+                int elemSize=0;
+                while(fieldNo<fields[i].size()) 
+                {
+                    if(!fieldNames[fieldNo].equalsIgnoreCase("ObjectType"))
+                    {
+                        Object value = fields[i].get(fieldNames[fieldNo]);
+                        if(value!=null && !(value.toString().trim().equals(""))) {
+                            elemSize++;
+                        }
+                    }	
+                    fieldNo++;
+
+                }
+                fieldNo = 0;
+                MessageElement[] elements = new MessageElement[elemSize];
+                ArrayList<String> nullFields = new ArrayList<String>();
+                while(fieldNo<fields[i].size()) 
+                {
+                    String fld = fieldNames[fieldNo];
+                    if(!fld.equalsIgnoreCase("ObjectType"))
+                    {
+                            Object value = fields[i].get(fieldNames[fieldNo]);
+                            if(value==null)
+                            {
+                                nullFields.add(fld);
+                            }
+                            else
+                            {
+                                elements[elemno] = new MessageElement(new QName(fieldNames[fieldNo]), fields[i].get(fieldNames[fieldNo]));  
+                                elemno++;
+                            }
+                     }	
+                    fieldNo++;
+                }
+                if(nullFields!=null && nullFields.size()>0)
+                    {
+                        String[] nullArray = new String[nullFields.size()];
+                        for(int j=0;j<nullFields.size();j++) {
+                                nullArray[j] = (String)nullFields.get(j);
+                        }
+                        sfObject.setFieldsToNull(nullArray);
+                    }
+
+
+                sfObject.set_any(elements);
+                sObjects[i] = sfObject;
+
+            }
+
+            SaveResult[] sr = eSession.updateMore(sObjects,sObjects.length);
+            return sr;
+            }
+            catch (Exception e) {
+                LOGGER.error("Failed to update records  in SalesForce" + e.getMessage());
+                throw new ResilientException("Failed to update records  in SalesForce" + e.getMessage());
+            }
 	}
 	
 	/**
@@ -370,18 +365,18 @@ public class QuerySFDC {
      */
 	
 	public void updateRecords(String[] ids, HashMap<String,Object>[] fields) throws ResilientException {
-		try {
-			SaveResult[] sr = update(ids,fields);
-			for(SaveResult s : sr){
-				if(!s.isSuccess()){
-					throw new ResilientException("Data Feed Job Exception");
-				}
-			}
-			
-		} catch (ResilientException e) {
-			LOGGER.error("Failed to insert records for Data Feed Job in SalesForce" + e.getMessage());
-			throw new ResilientException("Failed to insert records for Data Feed Job in SalesForce" + e.getMessage());
-		}
+            try {
+                    SaveResult[] sr = update(ids,fields);
+                    for(SaveResult s : sr){
+                        if(!s.isSuccess()){
+                            throw new ResilientException("Data Feed Job Exception");
+                        }
+                    }
+
+            } catch (ResilientException e) {
+                LOGGER.error("Failed to insert records for Data Feed Job in SalesForce" + e.getMessage());
+                throw new ResilientException("Failed to insert records for Data Feed Job in SalesForce" + e.getMessage());
+            }
 		
 	}
 
