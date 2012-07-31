@@ -1,0 +1,7 @@
+[12:19:56:194 INFO  MainClass main]  Method Started : generateReports
+[12:19:56:195 INFO  MainClass main]  Query prepared : SELECT ID,Espresso_Bill__Bill__r.Espresso_Bill__Account__r.Espresso_PC__Account_Number__c, Espresso_Bill__Asset__R.Name, Espresso_Bill__Date_From__c, Espresso_Bill__Date_To__c, Espresso_Bill__Gross_Amount_1__c, Espresso_Bill__Bill__r.Espresso_Bill__Bill_To__c from Espresso_Bill__Bill_Item__c WHERE Espresso_Bill__Bill__r.Name='B-00003062'
+[12:19:57:759 INFO  MainClass main]  Total number of Bill Item records queried: 1
+[12:20:16:995 INFO  MainClass main]  Method Started : generateReports
+[12:20:16:995 INFO  MainClass main]  Query prepared : SELECT ID,Espresso_Bill__Bill__r.Espresso_Bill__Account__r.Espresso_PC__Account_Number__c, Espresso_Bill__Asset__R.Name, Espresso_Bill__Date_From__c, Espresso_Bill__Date_To__c, Espresso_Bill__Gross_Amount_1__c, Espresso_Bill__Bill__r.Espresso_Bill__Bill_To__c from Espresso_Bill__Bill_Item__c WHERE Espresso_Bill__Bill__r.Name='B-00003062'
+[12:21:15:228 INFO  MainClass main]  Total number of Bill Item records queried: 9586
+[14:27:38:675 ERROR MainClass main]  Exception while initializing SFDC Login Session...: src.com.Exception.ResilientException: Error while creating binding soap service null
