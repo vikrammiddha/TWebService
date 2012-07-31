@@ -43,7 +43,8 @@ public class Configurator {
         AppConfig appConfig = new AppConfig();
 
         try {
-                props.load(new FileInputStream("C:/Vikram Data/Java Workspace/GenerateReportsWS/Resilient.properties"));
+                props.load(ClassLoader.getSystemResourceAsStream("Resilient.properties"));
+            //props.load(new FileInputStream("C:/Vikram Data/Java Workspace/GenerateReportsWS/Resilient.properties"));
                // props.load(getServletContext().getResourceAsStream("/WEB-INF/filename.properties"));
                 // SFDC
                 appConfig.setSfdcEndpoint(props.getProperty("sfdc.sfdcEndpoint"));

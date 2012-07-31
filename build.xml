@@ -68,4 +68,24 @@
     nbproject/build-impl.xml file. 
 
     -->
+	 <!-- Overrides build-impl.xml target to create the server
+         artifacts that will be included in the war file. -->
+    <target name="-pre-dist">
+        <taskdef name="wsgen" classname="com.sun.tools.ws.ant.WsGen">
+            <classpath path="${javac.classpath}"/>
+        </taskdef>
+    
+        <wsgen
+            debug="true"
+            keep="true"
+            destdir="build/web/WEB-INF/classes"
+            resourcedestdir="build/web/WEB-INF/classes"
+            sei="com.WS.GenerateReportWS">
+            <classpath>
+                <pathelement path="${javac.classpath}"/>
+                <pathelement location="${java.home}/../lib/tools.jar"/>
+                <pathelement location="build/web/WEB-INF/classes"/>
+            </classpath>
+	</wsgen>
+    </target>
 </project>
