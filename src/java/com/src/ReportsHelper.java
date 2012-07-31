@@ -44,14 +44,14 @@ public class ReportsHelper {
         
     /*Constructor. This initiates the SFDC Connection and other variables.*/
     public ReportsHelper() throws ResilientException{
-
+        
         appConfig = Configurator.getAppConfig();
-
+        
         try{
             eSession = SalesforceUtils.initMasterSession(appConfig);				
         }catch(Exception de) {
                 LOGGER.error("Exception while initializing SFDC Login Session...: " + de);
-                //throw de;
+                throw new ResilientException(de.getMessage());
         }
         querySfdc = new QuerySFDC(eSession);
         utils = new ReportUtils();				

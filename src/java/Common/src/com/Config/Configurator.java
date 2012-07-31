@@ -1,5 +1,6 @@
 package Common.src.com.Config;
 
+import Common.src.com.Exception.ResilientException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
@@ -35,27 +36,29 @@ public class Configurator {
      * 
      * @return
      */
-    public static AppConfig getAppConfig() {
+    public static AppConfig getAppConfig() throws ResilientException {
 
-        //LOGGER.info("Configurator:getAppConfig(): Configuring the Application credentials .........................");
+        LOGGER.info("Configurator:getAppConfig(): Configuring the Application credentials .........................");
 
         Properties props = new Properties();
         AppConfig appConfig = new AppConfig();
 
         try {
-                props.load(ClassLoader.getSystemResourceAsStream("Resilient.properties"));
-            //props.load(new FileInputStream("C:/Vikram Data/Java Workspace/GenerateReportsWS/Resilient.properties"));
-               // props.load(getServletContext().getResourceAsStream("/WEB-INF/filename.properties"));
+               // props.load("Resilient.properties");
+                props.load(new FileInputStream("c:/Resilient.properties"));
+                //props.load(Configurator.class.getClassLoader().getResourceAsStream("Resilient.properties"));
                 // SFDC
+                 LOGGER.info(" Resilient Properties loaded successfully ");
                 appConfig.setSfdcEndpoint(props.getProperty("sfdc.sfdcEndpoint"));
                 appConfig.setSfdcUsername(props.getProperty("sfdc.sfdcUsername"));
                 appConfig.setSfdcPassword(props.getProperty("sfdc.sfdcPassword"));
 
                 appConfig.setSfdcBillToItemQueryFields(props.getProperty("resilient.launchReport.sfdcBillToItemQueryFields"));
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.error("Exception while configuring the Application credentials ..." + e);
-        }
+            throw new ResilientException(e.getMessage());
+        } 
         return appConfig;
     }
 

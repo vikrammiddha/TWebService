@@ -24,8 +24,13 @@
 				value="[%d{dd-MMM-yyyy HH:mm:ss:SSS} %-5p %c{1} %t]  %m%n"/>
 		</layout>
 	</appender>
-  
-	<logger name="MainClass" >
+	
+	<logger name="ReportsHelper-Info" >
+		<level value="info"/>
+		<appender-ref ref="Resilient"/>
+	</logger>
+
+	<logger name="ReportsHelper-Debug" >
 		<level value="debug"/>
 		<appender-ref ref="Resilient"/>
 	</logger>

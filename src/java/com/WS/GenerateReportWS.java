@@ -35,7 +35,6 @@ public class GenerateReportWS {
     public Integer generateReports(@WebParam(name = "accountNumber") String accountNumber, @WebParam(name = "billRunId") String billRunId, @WebParam(name = "billId") String billId) {
         
         try{
-
             ReportsHelper obj = new ReportsHelper();
             return obj.generateReports(accountNumber, billRunId, billId); 
             //System.out.println("ret List " + retList.get(0).getAccountNumber());

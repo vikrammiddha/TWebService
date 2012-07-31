@@ -8,6 +8,9 @@ import org.apache.log4j.Layout;
 
 import Common.src.com.Config.AppConfig;
 import Common.src.com.Config.Configurator;
+import Common.src.com.Exception.ResilientException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /* 
 ########################################################################### 
@@ -45,7 +48,11 @@ public class CustomLogger extends org.apache.log4j.FileAppender
     public void activateOptions() {
     	 
     	BasicConfigurator.configure();
-    	AppConfig	appConfig = Configurator.getAppConfig();
+        try {
+            AppConfig appConfig = Configurator.getAppConfig();
+        } catch (ResilientException ex) {
+            Logger.getLogger(CustomLogger.class.getName()).log(Level.SEVERE, null, ex);
+        }
     	String logFileName=getFile();
     	SimpleDateFormat dateFormater=new SimpleDateFormat();
     	//dateFormater.applyLocalizedPattern(appConfig.getMerkleDataFeedFileDateFormat());
