@@ -1,6 +1,7 @@
 package Common.src.com.Config;
 
 import Common.src.com.Exception.ResilientException;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
@@ -44,16 +45,26 @@ public class Configurator {
         AppConfig appConfig = new AppConfig();
 
         try {
-               // props.load("Resilient.properties");
-                props.load(new FileInputStream("c:/Resilient.properties"));
+                File directory = new File (".");
+                // props.load("Resilient.properties");
+               // props.load(new FileInputStream(directory.getCanonicalPath() + "/Resilient.properties"));
+                 props.load(new FileInputStream("C:/Resilient.properties"));
                 //props.load(Configurator.class.getClassLoader().getResourceAsStream("Resilient.properties"));
                 // SFDC
-                 LOGGER.info(" Resilient Properties loaded successfully ");
+                LOGGER.info(" Resilient Properties loaded successfully ");
                 appConfig.setSfdcEndpoint(props.getProperty("sfdc.sfdcEndpoint"));
                 appConfig.setSfdcUsername(props.getProperty("sfdc.sfdcUsername"));
                 appConfig.setSfdcPassword(props.getProperty("sfdc.sfdcPassword"));
 
                 appConfig.setSfdcBillToItemQueryFields(props.getProperty("resilient.launchReport.sfdcBillToItemQueryFields"));
+                
+                appConfig.setReportsDirectory(props.getProperty("email.reports.directory"));
+                appConfig.setUserName(props.getProperty("email.webCredentials.userName"));
+                appConfig.setPassword(props.getProperty("email.webCredentials.password"));
+                appConfig.setUri(props.getProperty("email.webservice.uri"));
+                appConfig.setErrorSuccessEmailAddress(props.getProperty("email.errorSuccessEmailAddress"));
+                appConfig.setErrorSubject(props.getProperty("email.confirmationEmail.Error.Subject"));
+                appConfig.setSuccessSubject(props.getProperty("email.confirmationEmail.Success.Subject"));
 
         } catch (Exception e) {
             LOGGER.error("Exception while configuring the Application credentials ..." + e);

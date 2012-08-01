@@ -1,6 +1,7 @@
 package com.src;
 
 import Common.src.com.Config.AppConfig;
+import Common.src.com.Exception.ResilientException;
 import com.bean.BillItem;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +43,7 @@ public class ReportUtils {
         /*Makes sure that the field is blank.*/
 	public Boolean isBlank(String val){
 		
-            if(null == val || "" == val.trim()){
+            if(null == val || "".equals(val.trim())){
                     return true;
             }
             return false;
@@ -73,6 +74,23 @@ public class ReportUtils {
 
             return query;
 	}
+        
+        /*The below method get the latest Bill Id for the given Account number from SFDC.*/
+        
+        public String getLatestBillId(String accountNumber, QuerySFDC querySFDC) throws ResilientException{
+            
+            String query = "Select Name from Espresso_Bill__Bill__c ";
+            query = addWhereClause("ESPRESSO_BILL__ACCOUNT__R.ESPRESSO_PC__ACCOUNT_NUMBER__C", accountNumber, query);
+            query += " ORDER BY NAME DESC LIMIT 1";
+            
+            HashMap<String,Object>[] resultMap = querySFDC.executeQuery(query);
+            
+            if(resultMap.length != 1)
+                return null;
+            
+            return (String)resultMap[0].get("NAME");
+            
+        }
 	
 	/*populate the data queried from SFDC into List of BillItem objects.*/
 	public ArrayList<BillItem> populateBillItemBeans(String query, QuerySFDC querySFDC){

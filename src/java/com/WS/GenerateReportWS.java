@@ -5,6 +5,8 @@
 package com.WS;
 
 import com.src.ReportsHelper;
+import ewsconnect.EWSConnect;
+import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -32,11 +34,11 @@ public class GenerateReportWS {
      * Web service operation
      */
     @WebMethod(operationName = "generateReports")
-    public Integer generateReports(@WebParam(name = "accountNumber") String accountNumber, @WebParam(name = "billRunId") String billRunId, @WebParam(name = "billId") String billId) {
+    public Integer generateReports(@WebParam(name = "accountNumber") String accountNumber, @WebParam(name = "billRunId") String billRunId, @WebParam(name = "billId") String billId, @WebParam(name = "runId") String runId) {
         
         try{
             ReportsHelper obj = new ReportsHelper();
-            return obj.generateReports(accountNumber, billRunId, billId); 
+            return obj.generateReports(accountNumber, billRunId, billId, runId); 
             //System.out.println("ret List " + retList.get(0).getAccountNumber());
             //return retList;
         }catch(Exception e){
@@ -45,5 +47,18 @@ public class GenerateReportWS {
        
         return null;
         
+    }
+    
+    @WebMethod(operationName = "SendEmail")
+    @Oneway
+    public void SendEmail() {
+        try{
+            
+            EWSConnect ewsObj = new EWSConnect();
+            ewsObj.emailReports();
+            
+        }catch(Exception e){
+            LOGGER.error("Exception occured while emailing reports. Cause : " + e.getMessage());
+        }
     }
 }

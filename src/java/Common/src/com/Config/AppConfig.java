@@ -22,6 +22,38 @@ public final class AppConfig {
     private String sfdcUsername;
     private String sfdcPassword;
     private String sfdcBillToItemQueryFields;
+    private String reportsDirectory;    
+    private String userName;
+    private String password;
+    private String uri;
+    private String errorSuccessEmailAddress;
+    private String errorSubject;
+    private String successSubject;
+
+    public String getSuccessSubject() {
+        return successSubject;
+    }
+
+    public void setSuccessSubject(String successSubject) {
+        this.successSubject = successSubject;
+    }
+
+    public String getErrorSubject() {
+        return errorSubject;
+    }
+
+    public void setErrorSubject(String errorSubject) {
+        this.errorSubject = errorSubject;
+    }
+   
+
+    public String getErrorSuccessEmailAddress() {
+        return errorSuccessEmailAddress;
+    }
+
+    public void setErrorSuccessEmailAddress(String errorSuccessEmailAddress) {
+        this.errorSuccessEmailAddress = errorSuccessEmailAddress;
+    }
     
     public String getSfdcEndpoint() {
         return sfdcEndpoint;
@@ -50,5 +82,35 @@ public final class AppConfig {
     public void setSfdcBillToItemQueryFields(String sfdcBillToItemQueryFields) {
             this.sfdcBillToItemQueryFields = sfdcBillToItemQueryFields;
     }
-	
+    
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+        
+    public String getReportsDirectory() {
+        return reportsDirectory;
+    }
+    public void setReportsDirectory(String reportsDirectory) {
+        this.reportsDirectory = reportsDirectory;
+    }  
+    
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 }
