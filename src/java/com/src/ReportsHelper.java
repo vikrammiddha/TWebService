@@ -20,8 +20,12 @@ import Common.src.com.Exception.ResilientException;
 import Common.src.com.SFDC.EnterpriseSession;
 import Common.src.com.util.SalesforceUtils;
 import com.bean.BillItem;
+import com.bean.Itemisation;
+import com.bean.RatedCdr;
 import ewsconnect.EWSConnection;
+import java.sql.Date;
 import java.util.ArrayList;
+import java.util.HashMap;
 import org.apache.log4j.Logger;
 
 
@@ -41,6 +45,18 @@ public class ReportsHelper {
 
     /*ReportUtils contains helper mehtods.*/
     private ReportUtils utils = null;
+    
+    /*RatedCdr Records*/
+    RatedCdrHelper rch = new RatedCdrHelper();
+    
+    /*RatedCdr Records*/
+    ArrayList<RatedCdr> ratedCdrs = new ArrayList<RatedCdr>();
+    
+    /*RatedCdr Pack*/
+    HashMap<String,ArrayList<RatedCdr>> rCdrPack = new HashMap<String,ArrayList<RatedCdr>>();
+    
+    /*Itemisation Records*/
+    ArrayList<Itemisation> itemisation = null;
     
     private StringBuffer emailBody = new StringBuffer();
 	
@@ -129,7 +145,12 @@ public class ReportsHelper {
             LOGGER.info("Total number of Bill Item records queried: " + biItemList.size());
 
             // This is the place where Nimil's code will start with bitemList as Input;
-
+            for(BillItem bItem : biItemList){
+                ratedCdrs = rch.getEvents(bItem.getAccountNumber().trim(), Date.valueOf(bItem.getBillDate().trim()));
+                rCdrPack.put(bItem.getAccountNumber(), ratedCdrs);
+                itemisation.add(new Itemisation(rCdrPack, biItemList, null));
+                ratedCdrs.clear();
+            }
         }catch(Exception e){
             LOGGER.error("Exception occured while preparing data for Bill Item. Cause : " + e.getMessage());
             emailBody.append("Reports could not be generated for run Id :").append(runId).append(". Cause :").append(e.getMessage()).append("\n");

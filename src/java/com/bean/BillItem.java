@@ -20,7 +20,7 @@ public class BillItem {
     private String dateFrom = "";
     private String dateTo = "";
     private String retalGross = "";
-    private String billEndDate = "";
+    private String billDate = "";
     private String accountNumber = "";
 
     public String getBillPeriod() {
@@ -53,11 +53,11 @@ public class BillItem {
     public void setRetalGross(String retalGross) {
         this.retalGross = retalGross;
     }
-    public String getBillEndDate() {
-        return billEndDate;
+    public String getBillDate() {
+        return billDate;
     }
-    public void setBillEndDate(String billEndDate) {
-        this.billEndDate = billEndDate;
+    public void setBillDate(String billDate) {
+        this.billDate = billDate;
     }
     public String getAccountNumber() {
         return accountNumber;

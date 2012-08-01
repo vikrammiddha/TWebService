@@ -3,6 +3,7 @@ package com.src;
 import Common.src.com.Config.AppConfig;
 import Common.src.com.Exception.ResilientException;
 import com.bean.BillItem;
+import com.bean.Itemisation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
@@ -106,10 +107,10 @@ public class ReportUtils {
                     BillItem biObj = new BillItem();
 
                     biObj.setAssetName((String)hm.get("ESPRESSO_BILL__ASSET__R.NAME"));
-                    biObj.setBillEndDate((String)hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__BILL_TO__C"));
+                    biObj.setBillDate((String)hm.get("ESPRESSO_BILL__BILL__R.Espresso_Bill__Bill_Date__c"));
                     //biObj.setBillPeriod((String)hm.get("Espresso_Bill__Asset__R.Name"));
-                    biObj.setDateFrom((String)hm.get("ESPRESSO_BILL__DATE_FROM__C"));
-                    biObj.setDateTo((String)hm.get("ESPRESSO_BILL__DATE_TO__C"));
+                    biObj.setDateFrom((String)hm.get("Espresso_Bill__Bill_From__c"));
+                    biObj.setDateTo((String)hm.get("Espresso_Bill__Bill_To__c"));
                     biObj.setRetalGross((String)hm.get("ESPRESSO_BILL__GROSS_AMOUNT_1__C"));
                     biObj.setAccountNumber((String)hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.ESPRESSO_PC__ACCOUNT_NUMBER__C"));
 
@@ -121,5 +122,10 @@ public class ReportUtils {
             }
 
             return retBIList;
-	}	 
+	}
+        
+        /*Creation of PDF can be handled here*/
+        public boolean createPDF(ArrayList <Itemisation> itemisations){
+            return true;
+        }
 }

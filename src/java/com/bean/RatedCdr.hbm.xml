@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jul 26, 2012 11:20:49 AM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="com.bean.RatedCdr" table="rated_cdr" schema="dbo" catalog="Ormakeplus">
+        <id name="id" type="int">
+            <column name="ID" />
+            <generator class="assigned" />
+        </id>
+        <property name="cdrGuid" type="string">
+            <column name="cdrGUID" length="99" />
+        </property>
+        <property name="type" type="string">
+            <column name="TYPE" length="4" not-null="true" />
+        </property>
+        <property name="service" type="string">
+            <column name="SERVICE" length="9" not-null="true" />
+        </property>
+        <property name="direction" type="string">
+            <column name="DIRECTION" length="8" not-null="true" />
+        </property>
+        <property name="network" type="string">
+            <column name="NETWORK" length="99" not-null="true" />
+        </property>
+        <property name="remoteNetwork" type="string">
+            <column name="REMOTE_NETWORK" length="99" not-null="true" />
+        </property>
+        <property name="remoteSwitch" type="string">
+            <column name="REMOTE_SWITCH" length="99" not-null="true" />
+        </property>
+        <property name="portingPrefix" type="string">
+            <column name="PORTING_PREFIX" length="99" not-null="true" />
+        </property>
+        <property name="startTimestamp" type="timestamp">
+            <column name="START_TIMESTAMP" length="23" not-null="true" />
+        </property>
+        <property name="user" type="string">
+            <column name="[USER]" length="99" not-null="true" />
+        </property>
+        <property name="destination" type="string">
+            <column name="DESTINATION" length="99" not-null="true" />
+        </property>
+        <property name="caller" type="string">
+            <column name="CALLER" length="99" not-null="true" />
+        </property>
+        <property name="duration" type="double">
+            <column name="DURATION" precision="53" scale="0" not-null="true" />
+        </property>
+        <property name="retailPrice" type="double">
+            <column name="RETAIL_PRICE" precision="53" scale="0" not-null="true" />
+        </property>
+        <property name="wholesalePrice" type="double">
+            <column name="WHOLESALE_PRICE" precision="53" scale="0" not-null="true" />
+        </property>
+        <property name="localPolo" type="double">
+            <column name="LOCAL_POLO" precision="53" scale="0" not-null="true" />
+        </property>
+        <property name="localRolo" type="double">
+            <column name="LOCAL_ROLO" precision="53" scale="0" not-null="true" />
+        </property>
+        <property name="localTransit" type="double">
+            <column name="LOCAL_TRANSIT" precision="53" scale="0" not-null="true" />
+        </property>
+        <property name="remotePolo" type="double">
+            <column name="REMOTE_POLO" precision="53" scale="0" not-null="true" />
+        </property>
+        <property name="remoteRolo" type="double">
+            <column name="REMOTE_ROLO" precision="53" scale="0" not-null="true" />
+        </property>
+        <property name="remoteTransit" type="double">
+            <column name="REMOTE_TRANSIT" precision="53" scale="0" not-null="true" />
+        </property>
+        <property name="reseller" type="string">
+            <column name="RESELLER" length="10" />
+        </property>
+        <property name="financialCode" type="string">
+            <column name="FINANCIAL_CODE" length="9" not-null="true" />
+        </property>
+        <property name="billId" type="string">
+            <column name="BILL_ID" length="30" />
+        </property>
+        <property name="aggregationId" type="string">
+            <column name="AGGREGATION_ID" length="99" not-null="true" />
+        </property>
+        <property name="billStatus" type="string">
+            <column name="BILL_STATUS" length="9" not-null="true" />
+        </property>
+        <property name="state" type="int">
+            <column name="STATE" not-null="true" />
+        </property>
+        <property name="callRef" type="string">
+            <column name="CALL_REF" length="99" not-null="true" />
+        </property>
+        <property name="numberType" type="string">
+            <column name="NUMBER_TYPE" length="99" />
+        </property>
+        <property name="resellerCode" type="string">
+            <column name="RESELLER_CODE" length="99" />
+        </property>
+        <property name="wholesaleDescription" type="string">
+            <column name="WHOLESALE_DESCRIPTION" />
+        </property>
+        <property name="retailDescription" type="string">
+            <column name="RETAIL_DESCRIPTION" />
+        </property>
+        <property name="localcostDescription" type="string">
+            <column name="LOCALCOST_DESCRIPTION" />
+        </property>
+        <property name="remotecostDescription" type="string">
+            <column name="REMOTECOST_DESCRIPTION" />
+        </property>
+        <property name="localtransitDescription" type="string">
+            <column name="LOCALTRANSIT_DESCRIPTION" />
+        </property>
+        <property name="remotetransitDescription" type="string">
+            <column name="REMOTETRANSIT_DESCRIPTION" />
+        </property>
+        <property name="platform" type="string">
+            <column name="PLATFORM" length="10" />
+        </property>
+        <property name="timeBand" type="string">
+            <column name="TIME_BAND" length="20" />
+        </property>
+        <property name="msn" type="string">
+            <column name="MSN" length="20" />
+        </property>
+        <property name="zoneDestination" type="string">
+            <column name="ZONE_DESTINATION" length="100" />
+        </property>
+        <property name="billRunId" type="string">
+            <column name="BILL_RUN_ID" length="50" />
+        </property>
+    </class>
+</hibernate-mapping>
