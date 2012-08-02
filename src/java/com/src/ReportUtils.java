@@ -4,6 +4,8 @@ import Common.src.com.Config.AppConfig;
 import Common.src.com.Exception.ResilientException;
 import com.bean.BillItem;
 import com.bean.Itemisation;
+import com.bean.RatedCdr;
+import com.sun.faces.util.CollectionsUtils.ConstMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
@@ -94,10 +96,10 @@ public class ReportUtils {
         }
 	
 	/*populate the data queried from SFDC into List of BillItem objects.*/
-	public ArrayList<BillItem> populateBillItemBeans(String query, QuerySFDC querySFDC){
+	public HashMap<String,ArrayList<BillItem>> populateBillItemBeans(String query, QuerySFDC querySFDC){
 		
             ArrayList<BillItem> retBIList = new ArrayList<BillItem>();
-
+            HashMap<String,ArrayList<BillItem>> retBIMap = new HashMap<String,ArrayList<BillItem>>();
             try{
                 HashMap<String,Object>[] resultMap = querySFDC.executeQuery(query);
 
@@ -107,25 +109,43 @@ public class ReportUtils {
                     BillItem biObj = new BillItem();
 
                     biObj.setAssetName((String)hm.get("ESPRESSO_BILL__ASSET__R.NAME"));
-                    biObj.setBillDate((String)hm.get("ESPRESSO_BILL__BILL__R.Espresso_Bill__Bill_Date__c"));
+                    biObj.setBillDate((String)hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__BILL_DATE__C"));
                     //biObj.setBillPeriod((String)hm.get("Espresso_Bill__Asset__R.Name"));
-                    biObj.setDateFrom((String)hm.get("Espresso_Bill__Bill_From__c"));
-                    biObj.setDateTo((String)hm.get("Espresso_Bill__Bill_To__c"));
+                    biObj.setDateFrom((String)hm.get("ESPRESSO_BILL__DATE_FROM__C"));
+                    biObj.setDateTo((String)hm.get("ESPRESSO_BILL__BILL_TO__C"));
                     biObj.setRetalGross((String)hm.get("ESPRESSO_BILL__GROSS_AMOUNT_1__C"));
                     biObj.setAccountNumber((String)hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.ESPRESSO_PC__ACCOUNT_NUMBER__C"));
 
                     retBIList.add(biObj);
                 }
-
+                for(BillItem billItem : retBIList){
+                    if(retBIMap.containsKey(billItem.getAccountNumber())){
+                        retBIMap.get(billItem.getAccountNumber()).add(billItem);
+                    }else{
+                        retBIMap.put(billItem.getAccountNumber(), new ArrayList<BillItem>());
+                        retBIMap.get(billItem.getAccountNumber()).add(billItem);
+                    }
+                }
             }catch(Exception e){
                 LOGGER.error("Error occured while query SFDC for BillItems. Cause : " + e.getStackTrace());
             }
-
-            return retBIList;
+            
+            return retBIMap;
 	}
         
         /*Creation of PDF can be handled here*/
         public boolean createPDF(ArrayList <Itemisation> itemisations){
+            HashMap<String,ArrayList<RatedCdr>> ratedCdrs = new HashMap<String, ArrayList<RatedCdr>>();
+            for(Itemisation itemisation : itemisations){
+                String acNumber = itemisation.getAccountNumber();
+                ratedCdrs = itemisation.getRatedCdrs();
+                for(RatedCdr ratedCdr : ratedCdrs.get(acNumber)){
+                    System.out.println("Rated CDR : MSN : " + ratedCdr.getMsn() + "StartTimestamp : " +  ratedCdr.getStartTimestamp());
+                }
+                for(BillItem billItem : itemisation.getBillItems()){
+                    System.out.println("BillItem : Account Number : " + billItem.getAccountNumber() + "Gross : " + billItem.getRetalGross());
+                }
+            }
             return true;
         }
 }

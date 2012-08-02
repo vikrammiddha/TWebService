@@ -12,14 +12,16 @@ import java.util.HashMap;
  * @author Nimil
  */
 public class Itemisation {
+    String AccountNumber;
     private HashMap<String,ArrayList<RatedCdr>> rCdrs;
     private ArrayList<BillItem> bItems;
-    private ArrayList<Summary> summary;
+    //private ArrayList<Summary> summary;
     
-    public Itemisation(HashMap<String,ArrayList<RatedCdr>> rCdrs, ArrayList<BillItem> bItems, ArrayList<Summary> summary){
+    public Itemisation(String AccountNumber, HashMap<String,ArrayList<RatedCdr>> rCdrs, ArrayList<BillItem> bItems){
+        this.AccountNumber = AccountNumber;
         this.rCdrs = rCdrs;
         this.bItems = bItems;
-        this.summary = summary;
+        //this.summary = summary;
     }
     
     
@@ -31,8 +33,12 @@ public class Itemisation {
         return this.bItems;
     }
     
-    public ArrayList<Summary> getSummary(){
-        return this.summary;
+    public String getAccountNumber(){
+        return this.AccountNumber;
     }
+    
+    /*public ArrayList<Summary> getSummary(){
+        return this.summary;
+    }*/
     
 }

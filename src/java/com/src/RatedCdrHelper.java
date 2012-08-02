@@ -45,8 +45,8 @@ public class RatedCdrHelper {
     private Date getMaximum(DateTime dateTime) {
         MutableDateTime mdt = new MutableDateTime(dateTime);
         mdt.addMonths(-1);
-        mdt.setDayOfMonth(dateTime.dayOfMonth().getMaximumValue());
-        mdt.setMillisOfDay(dateTime.millisOfDay().getMaximumValue());
+        mdt.setDayOfMonth(mdt.dayOfMonth().getMaximumValue());
+        mdt.setMillisOfDay(mdt.millisOfDay().getMaximumValue());
         return (Date) mdt.toDate();
     }
 }

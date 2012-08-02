@@ -34,11 +34,11 @@ public class GenerateReportWS {
      * Web service operation
      */
     @WebMethod(operationName = "generateReports")
-    public Integer generateReports(@WebParam(name = "accountNumber") String accountNumber, @WebParam(name = "billRunId") String billRunId, @WebParam(name = "billId") String billId, @WebParam(name = "runId") String runId) {
+    public Integer generateReports(@WebParam(name = "accountNumber") String accountNumber, @WebParam(name = "billRunId") String billRunId, @WebParam(name = "billId") String billId, @WebParam(name = "runId") String runId, @WebParam(name = "billDate") String billDate) {
         
         try{
             ReportsHelper obj = new ReportsHelper();
-            return obj.generateReports(accountNumber, billRunId, billId, runId); 
+            return obj.generateReports(accountNumber, billRunId, billId, runId, billDate); 
             //System.out.println("ret List " + retList.get(0).getAccountNumber());
             //return retList;
         }catch(Exception e){
