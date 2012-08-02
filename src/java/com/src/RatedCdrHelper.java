@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.ArrayList;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 import org.joda.time.MutableDateTime;
@@ -32,6 +33,16 @@ public class RatedCdrHelper {
         crit.add(Restrictions.eq("msn", msn));
         crit.add(Restrictions.between("startTimestamp", getMinimum(dt), getMaximum(dt)));
         return (ArrayList<RatedCdr>) crit.list();
+    }
+    
+    public ArrayList<Object> getCallReport(String msn, Date eventMonth){
+        DateTime dt = new DateTime(eventMonth);
+        org.hibernate.Transaction tx = session.beginTransaction();
+        Criteria crit = session.createCriteria(RatedCdr.class);
+        crit.add(Restrictions.eq("msn", msn));
+        crit.add(Restrictions.between("startTimestamp", getMinimum(dt), getMaximum(dt)));
+        crit.setProjection(Projections.projectionList().add(Projections.groupProperty("zoneDestination")).add(Projections.sum("retailPrice")).add(Projections.count("id")));
+        return (ArrayList<Object>) crit.list();
     }
 
     private Date getMinimum(DateTime dateTime) {
