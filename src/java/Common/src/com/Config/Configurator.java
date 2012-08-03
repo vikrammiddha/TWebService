@@ -65,6 +65,8 @@ public class Configurator {
                 appConfig.setErrorSuccessEmailAddress(props.getProperty("email.errorSuccessEmailAddress"));
                 appConfig.setErrorSubject(props.getProperty("email.confirmationEmail.Error.Subject"));
                 appConfig.setSuccessSubject(props.getProperty("email.confirmationEmail.Success.Subject"));
+                appConfig.setPdfCreateDirectory(props.getProperty("pdf.reports.Directory"));
+                appConfig.setPdfGetResource(props.getProperty("pdf.reports.Resource"));
 
         } catch (Exception e) {
             LOGGER.error("Exception while configuring the Application credentials ..." + e);

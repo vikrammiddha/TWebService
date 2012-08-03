@@ -149,9 +149,10 @@ public class ReportUtils {
 	}
         
         /*Creation of PDF can be handled here*/
-        public boolean createPDF(ArrayList <Itemisation> itemisations){
+        public boolean createPDF(ArrayList <Itemisation> itemisations) throws Exception{
             HashMap<String,ArrayList<RatedCdr>> ratedCdrs = new HashMap<String, ArrayList<RatedCdr>>();
             HashMap<String, ArrayList<Object>> serviceItemisations = new HashMap<String, ArrayList<Object>>();
+            PDFCreator pdfCreate = new PDFCreator(itemisations);
             for(Itemisation itemisation : itemisations){
                 String acNumber = itemisation.getAccountNumber();
                 ratedCdrs = itemisation.getRatedCdrs();

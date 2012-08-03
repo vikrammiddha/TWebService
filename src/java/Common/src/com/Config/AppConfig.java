@@ -29,6 +29,8 @@ public final class AppConfig {
     private String errorSuccessEmailAddress;
     private String errorSubject;
     private String successSubject;
+    private String pdfCreateDirectory;
+    private String pdfGetResource;
 
     public String getSuccessSubject() {
         return successSubject;
@@ -112,5 +114,21 @@ public final class AppConfig {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+    
+    public String getPdfCreateDirectory() {
+        return pdfCreateDirectory;
+    }
+
+    public void setPdfCreateDirectory(String pdfCreateDirectory) {
+        this.pdfCreateDirectory = pdfCreateDirectory;
+    }
+    
+    public String getPdfGetResource() {
+        return pdfGetResource;
+    }
+
+    public void setPdfGetResource(String pdfGetResource) {
+        this.pdfGetResource = pdfGetResource;
     }
 }
