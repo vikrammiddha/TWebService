@@ -13,15 +13,19 @@ import java.util.HashMap;
  */
 public class Itemisation {
     String AccountNumber;
+    Boolean RequireTelephony;
+    Boolean RequireService;
     private HashMap<String,ArrayList<RatedCdr>> rCdrs;
     private ArrayList<BillItem> bItems;
-    //private ArrayList<Summary> summary;
+    HashMap<String, ArrayList<Object>> summary;
     
-    public Itemisation(String AccountNumber, HashMap<String,ArrayList<RatedCdr>> rCdrs, ArrayList<BillItem> bItems){
+    public Itemisation(String AccountNumber, String RequireTelephony, String RequireService,HashMap<String,ArrayList<RatedCdr>> rCdrs,HashMap<String, ArrayList<Object>> summary, ArrayList<BillItem> bItems){
         this.AccountNumber = AccountNumber;
         this.rCdrs = rCdrs;
         this.bItems = bItems;
-        //this.summary = summary;
+        this.RequireTelephony = ((RequireTelephony.equalsIgnoreCase("true")) ? true : false);
+        this.RequireService = ((RequireService.equalsIgnoreCase("true")) ? true : false);
+        this.summary = summary;
     }
     
     
@@ -37,8 +41,17 @@ public class Itemisation {
         return this.AccountNumber;
     }
     
-    /*public ArrayList<Summary> getSummary(){
+    public Boolean getRequireTelephony(){
+        return this.RequireTelephony;
+    }
+    
+    
+    public Boolean getRequireService(){
+        return this.RequireService;
+    }
+    
+    public HashMap<String, ArrayList<Object>> getSummary(){
         return this.summary;
-    }*/
+    }
     
 }

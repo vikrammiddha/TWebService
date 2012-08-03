@@ -77,6 +77,20 @@ public class ReportUtils {
             return query;
 	}
         
+        /*Adds the where clause in the query.*/
+        public String addWhereClause(String key, Boolean value, String query){
+		
+            LOGGER.info("In Method addWhereClause. Key :" + key + ",value : " + value + ", query " + query);
+
+            if(query.toUpperCase().contains("WHERE")){
+                query += " AND " + key + "=" + value;  
+            }else{
+                query += " WHERE " + key + "=" + value;  
+            }
+
+            return query;
+	}
+        
         /*The below method get the latest Bill Id for the given Account number from SFDC.*/
         
         public String getLatestBillId(String accountNumber, QuerySFDC querySFDC) throws ResilientException{
@@ -114,15 +128,17 @@ public class ReportUtils {
                     biObj.setDateTo((String)hm.get("ESPRESSO_BILL__BILL_TO__C"));
                     biObj.setRetalGross((String)hm.get("ESPRESSO_BILL__GROSS_AMOUNT_1__C"));
                     biObj.setAccountNumber((String)hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.ESPRESSO_PC__ACCOUNT_NUMBER__C"));
+                    biObj.setRequireServItemisation((((String)hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.SUMMARY_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")) ? true : false);
+                    biObj.setRequireTelItemisation((((String)hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.TEL_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")) ? true : false);
 
                     retBIList.add(biObj);
                 }
                 for(BillItem billItem : retBIList){
-                    if(retBIMap.containsKey(billItem.getAccountNumber())){
-                        retBIMap.get(billItem.getAccountNumber()).add(billItem);
+                    if(retBIMap.containsKey(billItem.getAccountNumber()+","+billItem.getRequireServItemisation()+","+billItem.getRequireTelItemisation())){
+                        retBIMap.get(billItem.getAccountNumber()+","+billItem.getRequireServItemisation()+","+billItem.getRequireTelItemisation()).add(billItem);
                     }else{
-                        retBIMap.put(billItem.getAccountNumber(), new ArrayList<BillItem>());
-                        retBIMap.get(billItem.getAccountNumber()).add(billItem);
+                        retBIMap.put(billItem.getAccountNumber()+","+billItem.getRequireServItemisation()+","+billItem.getRequireTelItemisation(), new ArrayList<BillItem>());
+                        retBIMap.get(billItem.getAccountNumber()+","+billItem.getRequireServItemisation()+","+billItem.getRequireTelItemisation()).add(billItem);
                     }
                 }
             }catch(Exception e){
@@ -135,14 +151,23 @@ public class ReportUtils {
         /*Creation of PDF can be handled here*/
         public boolean createPDF(ArrayList <Itemisation> itemisations){
             HashMap<String,ArrayList<RatedCdr>> ratedCdrs = new HashMap<String, ArrayList<RatedCdr>>();
+            HashMap<String, ArrayList<Object>> serviceItemisations = new HashMap<String, ArrayList<Object>>();
             for(Itemisation itemisation : itemisations){
                 String acNumber = itemisation.getAccountNumber();
                 ratedCdrs = itemisation.getRatedCdrs();
-                for(RatedCdr ratedCdr : ratedCdrs.get(acNumber)){
-                    System.out.println("Rated CDR : MSN : " + ratedCdr.getMsn() + "StartTimestamp : " +  ratedCdr.getStartTimestamp());
+                serviceItemisations = itemisation.getSummary();
+                if(itemisation.getRequireTelephony()){
+                    for(RatedCdr ratedCdr : ratedCdrs.get(acNumber)){
+                        System.out.println("Rated CDR : MSN : " + ratedCdr.getMsn() + "StartTimestamp : " +  ratedCdr.getStartTimestamp());
+                    }
                 }
                 for(BillItem billItem : itemisation.getBillItems()){
                     System.out.println("BillItem : Account Number : " + billItem.getAccountNumber() + "Gross : " + billItem.getRetalGross());
+                }
+                if(itemisation.getRequireService()){
+                    for(Object obj : serviceItemisations.get(acNumber)){
+                        System.out.println(obj.toString());
+                    }
                 }
             }
             return true;

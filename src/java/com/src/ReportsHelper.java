@@ -40,6 +40,24 @@ public class ReportsHelper {
 
     /*Initializing Logger.*/
     private static Logger LOGGER = Logger.getLogger(ReportsHelper.class);
+    
+    /*Key fields from HashMap of BillItems that need to be assembled after Explode*/
+    
+    private static String[] explodedValues;
+            
+    private static int IDX_ACCOUNT_NUMBER = 0;
+    
+    private static int IDX_REQUIRE_SERV = 1;
+    
+    private static int IDX_REQUIRE_TEL = 2;
+    
+    /*Key Field values*/
+    
+    private String AccountNumber;
+    
+    private String RequireTelephony;
+    
+    private String RequireService;
 
     /*ReportUtils contains helper mehtods.*/
     private ReportUtils utils = null;
@@ -47,8 +65,12 @@ public class ReportsHelper {
     RatedCdrHelper rch = new RatedCdrHelper();
     /*RatedCdr Records*/
     ArrayList<RatedCdr> ratedCdrs = new ArrayList<RatedCdr>();
+    /*Service Itemisation Records*/
+    ArrayList<Object> callReport  = new ArrayList<Object>();
     /*RatedCdr Pack*/
     HashMap<String, ArrayList<RatedCdr>> rCdrPack = new HashMap<String, ArrayList<RatedCdr>>();
+    /*Service Itemisation Pack*/
+    HashMap<String, ArrayList<Object>> servicePack =new HashMap<String, ArrayList<Object>>();
     /*Itemisation Records*/
     ArrayList<Itemisation> itemisation = new ArrayList<Itemisation>();
     ;
@@ -119,7 +141,10 @@ public class ReportsHelper {
             if (utils.isNotBlank(billId)) {
                 query = utils.addWhereClause("Espresso_Bill__Bill__r.Name", billId, query);
             }
-
+            
+            /*Add Where clause to only retrieve bills that require Itemisation*/
+                query = utils.addWhereClause("Espresso_Bill__Bill__r.Espresso_Bill__Account__r.Itemisation_Required__c", true, query);
+            
             /*Below code is to get the latest Bill in case only Account Number is mentioned.*/
             if (utils.isNotBlank(accountNumber) && utils.isBlank(billRunId) && utils.isBlank(billId)) {
                 String latestBillId = utils.getLatestBillId(accountNumber, querySfdc);
@@ -140,10 +165,16 @@ public class ReportsHelper {
             Set<String> bItemKeys = biItemMap.keySet();
             // This is the place where Nimil's code will start with bitemList as Input;
             for (String keySet : bItemKeys) {
-                ratedCdrs = rch.getEvents(keySet, Date.valueOf(billDate));
+                explodedValues = keySet.split(",");
+                AccountNumber = explodedValues[IDX_ACCOUNT_NUMBER];
+                RequireTelephony = explodedValues[IDX_REQUIRE_TEL];
+                RequireService = explodedValues[IDX_REQUIRE_SERV];
+                ratedCdrs = rch.getEvents(AccountNumber, Date.valueOf(billDate));
+                callReport = rch.getCallReport(AccountNumber, Date.valueOf(billDate));
                 LOGGER.info("Total number of Rated records queried for AccountNumber " + keySet + " is : " + ratedCdrs.size());
-                rCdrPack.put(keySet, ratedCdrs);
-                itemisation.add(new Itemisation(keySet,rCdrPack, biItemMap.get(keySet)));
+                rCdrPack.put(AccountNumber, ratedCdrs);
+                servicePack.put(AccountNumber, callReport);
+                itemisation.add(new Itemisation(AccountNumber,RequireTelephony,RequireService,rCdrPack,servicePack, biItemMap.get(keySet)));
             }
             
             /*Create the pdfs*/

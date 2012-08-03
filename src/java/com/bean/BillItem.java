@@ -22,6 +22,8 @@ public class BillItem {
     private String retalGross = "";
     private String billDate = "";
     private String accountNumber = "";
+    private Boolean requireTelItemisation = null;
+    private Boolean requireServItemisation = null;
 
     public String getBillPeriod() {
         return billPeriod;
@@ -64,6 +66,18 @@ public class BillItem {
     }
     public void setAccountNumber(String accountNumber) {
         this.accountNumber = accountNumber;
+    }
+    public Boolean getRequireTelItemisation() {
+        return requireTelItemisation;
+    }
+    public void setRequireTelItemisation(Boolean requireTelItemisation) {
+        this.requireTelItemisation = requireTelItemisation;
+    }
+    public Boolean getRequireServItemisation() {
+        return requireServItemisation;
+    }
+    public void setRequireServItemisation(Boolean requireServItemisation) {
+        this.requireServItemisation = requireServItemisation;
     }
 	
 }

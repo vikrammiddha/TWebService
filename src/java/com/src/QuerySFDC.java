@@ -379,6 +379,4 @@ public class QuerySFDC {
             }
 		
 	}
-
-
 }
