@@ -157,7 +157,7 @@ public class ReportsHelper {
 
         //LOGGER.info("returning the list" + biItemList);
         emailBody.append("Successfully generated the Reports for Run Id :").append(runId).append("\n");
-        //ewsObj.sendEmail(appConfig.getSuccessSubject() + ". RunId :" + runId, emailBody.toString());
+        ewsObj.sendEmail(appConfig.getSuccessSubject() + ". RunId :" + runId, emailBody.toString());
         return biItemMap.size();
     }
 }
