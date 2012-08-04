@@ -7,6 +7,7 @@ import com.bean.Itemisation;
 import com.bean.RatedCdr;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import org.apache.log4j.Logger;
 
 /* 
@@ -173,4 +174,48 @@ public class ReportUtils {
             }
             return true;
         }
+        
+        /*Below function returns the map of Accountnumber and authorized contact email address.*/
+       
+        public HashMap<String,String> getAccountAuthorizedEmailMap(Set<String> accountNumberSet, QuerySFDC querySFDC) throws ResilientException{
+            
+            HashMap<String,String> retMap = new HashMap<String, String>();
+            
+            String query = "Select EMAIL,Account.Espresso_PC__Account_Number__c from Contact where Authorised_Contact__c = true and "
+                    + "Account.Espresso_PC__Account_Number__c IN (" + getCommaSeparatedString(accountNumberSet) +")";
+                      
+            try{
+                 HashMap<String,Object>[] resultMap = querySFDC.executeQuery(query);
+                 
+                 if(resultMap.length > 0){
+                    for(int i=0; i<resultMap.length; i++){
+                        HashMap<String,Object> hm = resultMap[i];
+                        retMap.put((String)hm.get("ACCOUNT.ESPRESSO_PC__ACCOUNT_NUMBER__C"), (String)hm.get("EMAIL"));
+                     }
+                 }
+                 
+                 
+            }catch(Exception e){
+                LOGGER.error("Error occured while query SFDC for Authorized contact email address. Cause : " + e.getMessage());
+                throw new ResilientException(e.getMessage());
+            }
+            
+            return retMap;
+        }
+        
+        private String getCommaSeparatedString(Set<String> accountNumberSet){
+            
+            String retString = "";
+            
+            for(String s : accountNumberSet ){
+                retString += "'" + s + "',";
+            }
+            
+            if(retString.endsWith(",")){
+                retString = retString.substring(0,retString.lastIndexOf(","));
+            }
+            
+            return retString;
+        }
+
 }
