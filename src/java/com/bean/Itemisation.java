@@ -13,6 +13,7 @@ import java.util.HashMap;
  */
 public class Itemisation {
     String AccountNumber;
+    String EmailAddress;
     Boolean RequireTelephony;
     Boolean RequireService;
     private HashMap<String,ArrayList<RatedCdr>> rCdrs;
@@ -41,10 +42,17 @@ public class Itemisation {
         return this.AccountNumber;
     }
     
+    public String getEmailAddress(){
+        return this.EmailAddress;
+    }
+    
+    public void setEmailAddress(String EmailAddress){
+        this.EmailAddress = EmailAddress;
+    }
+    
     public Boolean getRequireTelephony(){
         return this.RequireTelephony;
     }
-    
     
     public Boolean getRequireService(){
         return this.RequireService;

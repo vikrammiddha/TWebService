@@ -72,9 +72,12 @@ public class ReportsHelper {
     /*Service Itemisation Pack*/
     HashMap<String, ArrayList<Object>> servicePack =new HashMap<String, ArrayList<Object>>();
     /*Itemisation Records*/
-    ArrayList<Itemisation> itemisation = new ArrayList<Itemisation>();
-    ;
-    
+    ArrayList<Itemisation> itemisations = new ArrayList<Itemisation>();
+    /*Set of account Numbers*/
+    Set<String> accountNumbers = null;
+    /*Email address map for each account Number*/
+    HashMap<String, String> accountAuthorizedEmailMap = null;
+    /*Email body*/
     private StringBuffer emailBody = new StringBuffer();
 
     /*Constructor. This initiates the SFDC Connection and other variables.*/
@@ -174,11 +177,21 @@ public class ReportsHelper {
                 LOGGER.info("Total number of Rated records queried for AccountNumber " + keySet + " is : " + ratedCdrs.size());
                 rCdrPack.put(AccountNumber, ratedCdrs);
                 servicePack.put(AccountNumber, callReport);
-                itemisation.add(new Itemisation(AccountNumber,RequireTelephony,RequireService,rCdrPack,servicePack, biItemMap.get(keySet)));
+                itemisations.add(new Itemisation(AccountNumber,RequireTelephony,RequireService,rCdrPack,servicePack, biItemMap.get(keySet)));
+            }
+            
+            for(Itemisation itemisation : itemisations){
+                accountNumbers.add(itemisation.getAccountNumber());
+            }
+            
+            accountAuthorizedEmailMap = utils.getAccountAuthorizedEmailMap(accountNumbers, querySfdc);
+            
+            for(Itemisation itemisation : itemisations){
+                itemisation.setEmailAddress(accountAuthorizedEmailMap.get(itemisation.getAccountNumber()));
             }
             
             /*Create the pdfs*/
-            utils.createPDF(itemisation);
+            utils.createPDF(itemisations);
         } catch (Exception e) {
             LOGGER.error("Exception occured while preparing data for Bill Item. Cause : " + e.getMessage());
             emailBody.append("Reports could not be generated for run Id :").append(runId).append(". Cause :").append(e.getMessage()).append("\n");
