@@ -46,12 +46,12 @@ public class PDFCreator {
     //Total Number of Calls
     public static int totalCalls = 0;
 
-    public PDFCreator(ArrayList<Itemisation> itemisations) throws Exception {
+    public PDFCreator(ArrayList<Itemisation> itemisations, String runId) throws Exception {
 
         Document document = new Document(PageSize.A4, 10, 10, 10, 10);
         //PdfWriter.getInstance(document, new FileOutputStream("C:\\Users\\Neha\\Documents\\NetBeansProjects\\JavaiText\\src\\javaitext\\AddBigTable.pdf"));
         for (Itemisation itemisation : itemisations) {
-            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(config.getPdfCreateDirectory() + "/" + itemisation.getAccountNumber() + ".pdf"));
+            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(config.getPdfCreateDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf"));
             writer.setBoxSize("art", new Rectangle(10, 10, 559, 788));
             HeaderFooter event = new HeaderFooter();
             writer.setPageEvent(event);
