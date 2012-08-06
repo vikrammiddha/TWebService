@@ -192,7 +192,7 @@ public class ReportsHelper {
             }
 
             /*Create the pdfs*/
-            utils.createPDF(itemisations);
+            utils.createPDF(itemisations,runId);
         } catch (Exception e) {
             LOGGER.error("Exception occured while preparing data for Bill Item. Cause : " + e.getMessage());
             emailBody.append("Reports could not be generated for run Id :").append(runId).append(". Cause :").append(e.getMessage()).append("\n");
