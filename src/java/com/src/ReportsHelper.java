@@ -18,12 +18,14 @@ import Common.src.com.Exception.ResilientException;
 import Common.src.com.SFDC.EnterpriseSession;
 import Common.src.com.util.SalesforceUtils;
 import com.bean.BillItem;
+import com.bean.CallReport;
 import com.bean.Itemisation;
 import com.bean.RatedCdr;
 import ewsconnect.EWSConnection;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 import org.apache.log4j.Logger;
 
@@ -40,25 +42,19 @@ public class ReportsHelper {
 
     /*Initializing Logger.*/
     private static Logger LOGGER = Logger.getLogger(ReportsHelper.class);
-    
     /*Key fields from HashMap of BillItems that need to be assembled after Explode*/
-    
     private static String[] explodedValues;
-            
     private static int IDX_ACCOUNT_NUMBER = 0;
-    
     private static int IDX_REQUIRE_SERV = 1;
-    
     private static int IDX_REQUIRE_TEL = 2;
-    
     /*Key Field values*/
-    
     private String AccountNumber;
-    
     private String RequireTelephony;
-    
     private String RequireService;
-
+    /*Call Report Mapping*/
+    private static int IDX_DESTINATION = 0;
+    private static int IDX_COST = 1;
+    private static int IDX_COUNT = 2;
     /*ReportUtils contains helper mehtods.*/
     private ReportUtils utils = null;
     /*RatedCdr Records*/
@@ -66,15 +62,16 @@ public class ReportsHelper {
     /*RatedCdr Records*/
     ArrayList<RatedCdr> ratedCdrs = new ArrayList<RatedCdr>();
     /*Service Itemisation Records*/
-    ArrayList<Object> callReport  = new ArrayList<Object>();
+    ArrayList<Object> callReportObject = new ArrayList<Object>();
+    ArrayList<CallReport> callReport = new ArrayList<CallReport>();
     /*RatedCdr Pack*/
     HashMap<String, ArrayList<RatedCdr>> rCdrPack = new HashMap<String, ArrayList<RatedCdr>>();
     /*Service Itemisation Pack*/
-    HashMap<String, ArrayList<Object>> servicePack =new HashMap<String, ArrayList<Object>>();
+    HashMap<String, ArrayList<CallReport>> servicePack = new HashMap<String, ArrayList<CallReport>>();
     /*Itemisation Records*/
     ArrayList<Itemisation> itemisations = new ArrayList<Itemisation>();
     /*Set of account Numbers*/
-    Set<String> accountNumbers = null;
+    Set<String> accountNumbers = new HashSet<String>();
     /*Email address map for each account Number*/
     HashMap<String, String> accountAuthorizedEmailMap = null;
     /*Email body*/
@@ -144,10 +141,10 @@ public class ReportsHelper {
             if (utils.isNotBlank(billId)) {
                 query = utils.addWhereClause("Espresso_Bill__Bill__r.Name", billId, query);
             }
-            
+
             /*Add Where clause to only retrieve bills that require Itemisation*/
-                query = utils.addWhereClause("Espresso_Bill__Bill__r.Espresso_Bill__Account__r.Itemisation_Required__c", true, query);
-            
+            query = utils.addWhereClause("Espresso_Bill__Bill__r.Espresso_Bill__Account__r.Itemisation_Required__c", true, query);
+
             /*Below code is to get the latest Bill in case only Account Number is mentioned.*/
             if (utils.isNotBlank(accountNumber) && utils.isBlank(billRunId) && utils.isBlank(billId)) {
                 String latestBillId = utils.getLatestBillId(accountNumber, querySfdc);
@@ -173,23 +170,27 @@ public class ReportsHelper {
                 RequireTelephony = explodedValues[IDX_REQUIRE_TEL];
                 RequireService = explodedValues[IDX_REQUIRE_SERV];
                 ratedCdrs = rch.getEvents(AccountNumber, Date.valueOf(billDate));
-                callReport = rch.getCallReport(AccountNumber, Date.valueOf(billDate));
+                callReportObject = rch.getCallReport(AccountNumber, Date.valueOf(billDate));
+                for (Object eachReport : callReportObject) {
+                    Object[] row = (Object[]) eachReport;
+                    callReport.add(new CallReport(Integer.valueOf(row[IDX_COUNT].toString()), row[IDX_DESTINATION].toString(), Double.valueOf(row[IDX_COST].toString())));
+                }
                 LOGGER.info("Total number of Rated records queried for AccountNumber " + keySet + " is : " + ratedCdrs.size());
                 rCdrPack.put(AccountNumber, ratedCdrs);
                 servicePack.put(AccountNumber, callReport);
-                itemisations.add(new Itemisation(AccountNumber,RequireTelephony,RequireService,rCdrPack,servicePack, biItemMap.get(keySet)));
+                itemisations.add(new Itemisation(AccountNumber, RequireTelephony, RequireService, rCdrPack, servicePack, biItemMap.get(keySet)));
             }
-            
-            for(Itemisation itemisation : itemisations){
+
+            for (Itemisation itemisation : itemisations) {
                 accountNumbers.add(itemisation.getAccountNumber());
             }
-            
+
             accountAuthorizedEmailMap = utils.getAccountAuthorizedEmailMap(accountNumbers, querySfdc);
-            
-            for(Itemisation itemisation : itemisations){
+
+            for (Itemisation itemisation : itemisations) {
                 itemisation.setEmailAddress(accountAuthorizedEmailMap.get(itemisation.getAccountNumber()));
             }
-            
+
             /*Create the pdfs*/
             utils.createPDF(itemisations);
         } catch (Exception e) {

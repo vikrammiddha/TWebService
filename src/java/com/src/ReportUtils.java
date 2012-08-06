@@ -3,6 +3,7 @@ package com.src;
 import Common.src.com.Config.AppConfig;
 import Common.src.com.Exception.ResilientException;
 import com.bean.BillItem;
+import com.bean.CallReport;
 import com.bean.Itemisation;
 import com.bean.RatedCdr;
 import java.util.ArrayList;
@@ -152,7 +153,7 @@ public class ReportUtils {
         /*Creation of PDF can be handled here*/
         public boolean createPDF(ArrayList <Itemisation> itemisations) throws Exception{
             HashMap<String,ArrayList<RatedCdr>> ratedCdrs = new HashMap<String, ArrayList<RatedCdr>>();
-            HashMap<String, ArrayList<Object>> serviceItemisations = new HashMap<String, ArrayList<Object>>();
+            HashMap<String, ArrayList<CallReport>> serviceItemisations = new HashMap<String, ArrayList<CallReport>>();
             PDFCreator pdfCreate = new PDFCreator(itemisations);
             for(Itemisation itemisation : itemisations){
                 String acNumber = itemisation.getAccountNumber();
@@ -167,8 +168,8 @@ public class ReportUtils {
                     System.out.println("BillItem : Account Number : " + billItem.getAccountNumber() + "Gross : " + billItem.getRetalGross());
                 }
                 if(itemisation.getRequireService()){
-                    for(Object obj : serviceItemisations.get(acNumber)){
-                        System.out.println(obj.toString());
+                    for(CallReport obj : serviceItemisations.get(acNumber)){
+                        System.out.println(obj.getZoneDestination());
                     }
                 }
             }
@@ -183,7 +184,7 @@ public class ReportUtils {
             
             String query = "Select EMAIL,Account.Espresso_PC__Account_Number__c from Contact where Authorised_Contact__c = true and "
                     + "Account.Espresso_PC__Account_Number__c IN (" + getCommaSeparatedString(accountNumberSet) +")";
-                      
+            LOGGER.info("Query String to get Email Addresses : " + query);          
             try{
                  HashMap<String,Object>[] resultMap = querySFDC.executeQuery(query);
                  
@@ -194,7 +195,7 @@ public class ReportUtils {
                      }
                  }
                  
-                 
+            LOGGER.info("Total number of email adddresses retrieved : " + retMap.size());     
             }catch(Exception e){
                 LOGGER.error("Error occured while query SFDC for Authorized contact email address. Cause : " + e.getMessage());
                 throw new ResilientException(e.getMessage());

@@ -18,9 +18,9 @@ public class Itemisation {
     Boolean RequireService;
     private HashMap<String,ArrayList<RatedCdr>> rCdrs;
     private ArrayList<BillItem> bItems;
-    HashMap<String, ArrayList<Object>> summary;
+    HashMap<String, ArrayList<CallReport>> summary;
     
-    public Itemisation(String AccountNumber, String RequireTelephony, String RequireService,HashMap<String,ArrayList<RatedCdr>> rCdrs,HashMap<String, ArrayList<Object>> summary, ArrayList<BillItem> bItems){
+    public Itemisation(String AccountNumber, String RequireTelephony, String RequireService,HashMap<String,ArrayList<RatedCdr>> rCdrs,HashMap<String, ArrayList<CallReport>> summary, ArrayList<BillItem> bItems){
         this.AccountNumber = AccountNumber;
         this.rCdrs = rCdrs;
         this.bItems = bItems;
@@ -58,7 +58,7 @@ public class Itemisation {
         return this.RequireService;
     }
     
-    public HashMap<String, ArrayList<Object>> getSummary(){
+    public HashMap<String, ArrayList<CallReport>> getSummary(){
         return this.summary;
     }
     
