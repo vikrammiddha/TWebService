@@ -257,7 +257,7 @@ public class PDFCreator {
         document.add(Chunk.NEWLINE);
         totalCost = 0.0;
         for (BillItem bItem : itemisation.getBillItems()) {
-            cell2 = new PdfPCell(new Paragraph(bItem.getAccountNumber(), smallBoldFont));
+            cell2 = new PdfPCell(new Paragraph(bItem.getIdentifier(), smallBoldFont));
             cell2.setBorder(0);
             cell2.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
             table1.addCell(cell2);

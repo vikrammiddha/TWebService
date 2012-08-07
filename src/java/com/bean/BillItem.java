@@ -22,6 +22,7 @@ public class BillItem {
     private String retalGross = "";
     private String billDate = "";
     private String accountNumber = "";
+    private String identifier = "";
     private Boolean requireTelItemisation = null;
     private Boolean requireServItemisation = null;
 
@@ -60,6 +61,12 @@ public class BillItem {
     }
     public void setBillDate(String billDate) {
         this.billDate = billDate;
+    }
+    public String getIdentifier() {
+        return identifier;
+    }
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
     public String getAccountNumber() {
         return accountNumber;

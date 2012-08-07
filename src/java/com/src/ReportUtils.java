@@ -143,6 +143,7 @@ public class ReportUtils {
                     biObj.setDateTo((String)hm.get("ESPRESSO_BILL__BILL_TO__C"));
                     biObj.setRetalGross((String)hm.get("ESPRESSO_BILL__GROSS_AMOUNT_1__C"));
                     biObj.setAccountNumber((String)hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.ESPRESSO_PC__ACCOUNT_NUMBER__C"));
+                    biObj.setIdentifier((String)hm.get("ESPRESSO_BILL__ACCOUNT_SERVICE_LINE__R.ESPRESSO_PC__BILLING_IDENTIFIER__C"));
                     biObj.setRequireServItemisation((((String)hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.SUMMARY_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")) ? true : false);
                     biObj.setRequireTelItemisation((((String)hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.TEL_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")) ? true : false);
 
