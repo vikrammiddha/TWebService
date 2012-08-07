@@ -168,10 +168,10 @@ public class ReportUtils {
         public boolean createPDF(ArrayList <Itemisation> itemisations, String runId) throws Exception{
             EWSConnection ewsObj = new EWSConnection();
             PDFCreator pdfCreate = new PDFCreator(itemisations,runId);
-            File file = new File(appConfig.getPdfCreateDirectory());
-            if(pdfCreate.valid){
-                ewsObj.processFolder(file);
-            }
+            //File file = new File(appConfig.getPdfCreateDirectory());
+            //if(pdfCreate.valid){
+            //    ewsObj.processFolder(file);
+            //}
             return true;
         }
         

@@ -26,14 +26,15 @@ import com.itextpdf.text.pdf.PdfPageEventHelper;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.BadElementException;
+import ewsconnect.EWSConnection;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 public class PDFCreator {
 
     AppConfig config = Configurator.getAppConfig();
+    public static Logger LOGGER = Logger.getLogger(EWSConnection.class);
     public final String RESOURCE = config.getPdfGetResource();
     private static Font smallFont = new Font(Font.FontFamily.TIMES_ROMAN, 10,
             Font.NORMAL);
@@ -52,7 +53,9 @@ public class PDFCreator {
         Document document = new Document(PageSize.A4, 10, 10, 10, 10);
         //PdfWriter.getInstance(document, new FileOutputStream("C:\\Users\\Neha\\Documents\\NetBeansProjects\\JavaiText\\src\\javaitext\\AddBigTable.pdf"));
         for (Itemisation itemisation : itemisations) {
+            LOGGER.info("Creating PDF for account :" + itemisation.getAccountNumber() + "at : " + config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf");
             PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf"));
+            LOGGER.info("Created PDF for account :" + itemisation.getAccountNumber() + "at : " + config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf");
             writer.setBoxSize("art", new Rectangle(10, 10, 559, 788));
             HeaderFooter event = new HeaderFooter();
             writer.setPageEvent(event);
@@ -377,7 +380,7 @@ public class PDFCreator {
     }
 
     static class HeaderFooter extends PdfPageEventHelper {
-
+        public static Logger LOGGER = Logger.getLogger(EWSConnection.class);
         @Override
         public void onStartPage(PdfWriter writer, Document document) {
             try {
@@ -389,7 +392,7 @@ public class PDFCreator {
                     addTitlePage(document);
                     document.add(Chunk.NEWLINE);
                 } catch (DocumentException ex) {
-                    Logger.getLogger(PDFCreator.class.getName()).log(Level.SEVERE, null, ex);
+                    LOGGER.error("Exception while adding Header/Footer on PDF. Cause :" + ex.getMessage());;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -398,7 +401,7 @@ public class PDFCreator {
                         rect.getRight(), rect.getTop() + 20, 0);
                 // (rect.getLeft() + rect.getRight()) / 2, rect.getTop() + 18, 0);
             } catch (ResilientException ex) {
-                Logger.getLogger(PDFCreator.class.getName()).log(Level.SEVERE, null, ex);
+                LOGGER.error("Exception while creating PDF. Cause :" + ex.getMessage());
             }
         }
 
