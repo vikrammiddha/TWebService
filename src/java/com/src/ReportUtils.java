@@ -1,14 +1,18 @@
 package com.src;
 
 import Common.src.com.Config.AppConfig;
+import Common.src.com.Config.Configurator;
 import Common.src.com.Exception.ResilientException;
 import com.bean.BillItem;
 import com.bean.CallReport;
 import com.bean.Itemisation;
 import com.bean.RatedCdr;
+import ewsconnect.EWSConnection;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.logging.Level;
 import org.apache.log4j.Logger;
 
 /* 
@@ -28,6 +32,15 @@ public class ReportUtils {
 
 	private static Logger LOGGER = Logger.getLogger(ReportUtils.class);
 	
+	private static AppConfig appConfig = null; 
+        
+        public ReportUtils(){
+        try {
+            appConfig = Configurator.getAppConfig();;
+        } catch (ResilientException ex) {
+            java.util.logging.Logger.getLogger(ReportUtils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        }
         /*prepares the select query by reading the fields from Resilient.properties file.*/
 	public String getQuery( AppConfig appConfig){
 		
@@ -153,26 +166,11 @@ public class ReportUtils {
         
         /*Creation of PDF can be handled here*/
         public boolean createPDF(ArrayList <Itemisation> itemisations, String runId) throws Exception{
-            HashMap<String,ArrayList<RatedCdr>> ratedCdrs = new HashMap<String, ArrayList<RatedCdr>>();
-            HashMap<String, ArrayList<CallReport>> serviceItemisations = new HashMap<String, ArrayList<CallReport>>();
+            EWSConnection ewsObj = new EWSConnection();
             PDFCreator pdfCreate = new PDFCreator(itemisations,runId);
-            for(Itemisation itemisation : itemisations){
-                String acNumber = itemisation.getAccountNumber();
-                ratedCdrs = itemisation.getRatedCdrs();
-                serviceItemisations = itemisation.getSummary();
-                if(itemisation.getRequireTelephony()){
-                    for(RatedCdr ratedCdr : ratedCdrs.get(acNumber)){
-                        System.out.println("Rated CDR : MSN : " + ratedCdr.getMsn() + "StartTimestamp : " +  ratedCdr.getStartTimestamp());
-                    }
-                }
-                for(BillItem billItem : itemisation.getBillItems()){
-                    System.out.println("BillItem : Account Number : " + billItem.getAccountNumber() + "Gross : " + billItem.getRetalGross());
-                }
-                if(itemisation.getRequireService()){
-                    for(CallReport obj : serviceItemisations.get(acNumber)){
-                        System.out.println(obj.getZoneDestination());
-                    }
-                }
+            File file = new File(appConfig.getPdfCreateDirectory());
+            if(pdfCreate.valid){
+                ewsObj.processFolder(file);
             }
             return true;
         }

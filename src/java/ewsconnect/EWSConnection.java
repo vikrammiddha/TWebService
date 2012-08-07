@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.logging.Level;
 import microsoft.exchange.webservices.data.EmailMessage;
 import microsoft.exchange.webservices.data.ExchangeCredentials;
 import microsoft.exchange.webservices.data.ExchangeService;
@@ -27,7 +28,9 @@ import org.apache.log4j.Logger;
 public class EWSConnection {
 
     public static ExchangeService service = null;
-    
+    public static boolean processedFile = false;
+    public static boolean movedFile = false;
+
     /*Initialize and load the Resilient.Propoerties file */
     private static AppConfig appConfig = null; 
     
@@ -44,14 +47,20 @@ public class EWSConnection {
        
     }
 
-    private void process(File file) throws IOException, Exception {
-        LOGGER.info("Processing Report : " + file);
-        PdfReader ReadInputPDF = new PdfReader(file.getAbsolutePath());
-        HashMap<String, String> metaDataInfo = ReadInputPDF.getInfo();
-        LOGGER.info("PDF Metadata : " + metaDataInfo.get("Keywords"));
-        //System.out.println(metaDataInfo.get("Keywords"));
-        emailReport(file.getAbsolutePath(),metaDataInfo.get("Keywords"));
-        /* dumping metadata on the screen */
+    private boolean process(File file) {
+        try {
+            LOGGER.info("Processing Report : " + file);
+            PdfReader ReadInputPDF = new PdfReader(file.getAbsolutePath());
+            HashMap<String, String> metaDataInfo = ReadInputPDF.getInfo();
+            LOGGER.info("PDF Metadata : " + metaDataInfo.get("Keywords"));
+            //System.out.println(metaDataInfo.get("Keywords"));
+            emailReport(file.getAbsolutePath(),metaDataInfo.get("Keywords"));
+            /* dumping metadata on the screen */
+            return true;
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(EWSConnection.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        } 
         
     }
  
@@ -62,7 +71,8 @@ public class EWSConnection {
         LOGGER.info("Emailing Report : " + path);
         try{
             EmailMessage msg = new EmailMessage(service);
-            msg.setSubject("Hello world!");
+            msg.setSubject("Itemisation Report - ResilientPLC");
+
             msg.setBody(MessageBody.getMessageBodyFromText("Sent using the EWS Managed API."));
             msg.getToRecipients().add(emailToAddress);
             msg.getAttachments().addFileAttachment(path);
@@ -102,9 +112,18 @@ public class EWSConnection {
         LOGGER.info("Total reports in the Reports Directory := " + dir.list().length);
         if (dir.isDirectory()) {
             String[] children = dir.list();
+            File file = null;
+            File archiveDir = new File(appConfig.getPdfArchiveDir());
+            File errorDir = new File(appConfig.getErrorSubject());
             for (int i = 0; i < children.length; i++) {
-                System.out.println(dir.getAbsoluteFile()+"\\"+children[i]);
-                process(new File(dir.getAbsoluteFile()+"\\"+children[i]));
+                file = new File(dir.getAbsoluteFile()+"\\"+children[i]);
+                processedFile = process(file);
+                if (processedFile){
+                    movedFile = file.renameTo(new File(archiveDir, file.getName()));
+                }else{
+                    movedFile = file.renameTo(new File(errorDir, file.getName()));
+                }
+
             }
         }
     }

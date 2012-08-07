@@ -31,6 +31,8 @@ public final class AppConfig {
     private String successSubject;
     private String pdfCreateDirectory;
     private String pdfGetResource;
+	private String pdfArchiveDir;
+    private String pdfErrorDir;
 
     public String getSuccessSubject() {
         return successSubject;
@@ -130,5 +132,20 @@ public final class AppConfig {
 
     public void setPdfGetResource(String pdfGetResource) {
         this.pdfGetResource = pdfGetResource;
+    }
+	public String getPdfArchiveDir() {
+        return pdfArchiveDir;
+    }
+
+    public void setPdfArchiveDir(String pdfArchiveDir) {
+        this.pdfArchiveDir = pdfArchiveDir;
+    }
+    
+    public String getPdfErrorDir() {
+        return pdfErrorDir;
+    }
+
+    public void setPdfErrorDir(String pdfErrorDir) {
+        this.pdfErrorDir = pdfErrorDir;
     }
 }
