@@ -3,6 +3,7 @@ package Common.src.com.Config;
 import Common.src.com.Exception.ResilientException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 import org.apache.log4j.Logger;
@@ -46,9 +47,22 @@ public class Configurator {
 
         try {
                 File directory = new File (".");
-                // props.load("Resilient.properties");
+                System.out.println("Canonical path ==== "+ directory.getCanonicalPath());
+                System.out.println("Canonical path ====" + directory.getCanonicalPath().substring(0,directory.getCanonicalPath().lastIndexOf("\\")) + "\\webapps\\GenerateReports\\Resilient.properties");
+                FileInputStream fis ;
+                
+                try{
+                    fis = new FileInputStream("Resilient.properties");
+                }catch(FileNotFoundException e){
+                    fis = new FileInputStream(directory.getCanonicalPath().substring(0,directory.getCanonicalPath().lastIndexOf("\\")) + "\\webapps\\GenerateReports\\Resilient.properties"); 
+                }catch(Exception e){
+                    fis = new FileInputStream("C:/Resilient.properties");
+                }                
+                             
+                props.load(fis);
                // props.load(new FileInputStream(directory.getCanonicalPath() + "/Resilient.properties"));
-                 props.load(new FileInputStream("C:/Resilient.properties"));
+                                
+                //props.load(new FileInputStream("C:/Resilient.properties"));
                 //props.load(Configurator.class.getClassLoader().getResourceAsStream("Resilient.properties"));
                 // SFDC
                 LOGGER.info(" Resilient Properties loaded successfully ");

@@ -111,7 +111,7 @@ public class ReportUtils {
         }
 	
 	/*populate the data queried from SFDC into List of BillItem objects.*/
-	public HashMap<String,ArrayList<BillItem>> populateBillItemBeans(String query, QuerySFDC querySFDC){
+	public HashMap<String,ArrayList<BillItem>> populateBillItemBeans(String query, QuerySFDC querySFDC) throws ResilientException{
 		
             ArrayList<BillItem> retBIList = new ArrayList<BillItem>();
             HashMap<String,ArrayList<BillItem>> retBIMap = new HashMap<String,ArrayList<BillItem>>();
@@ -145,6 +145,7 @@ public class ReportUtils {
                 }
             }catch(Exception e){
                 LOGGER.error("Error occured while query SFDC for BillItems. Cause : " + e.getStackTrace());
+                throw new ResilientException(e.getMessage());
             }
             
             return retBIMap;
@@ -182,8 +183,14 @@ public class ReportUtils {
             
             HashMap<String,String> retMap = new HashMap<String, String>();
             
+            String accountNumberExp = getCommaSeparatedString(accountNumberSet);
+            
+            if(accountNumberExp.length() <=0){
+                return retMap;
+            }                
+            
             String query = "Select EMAIL,Account.Espresso_PC__Account_Number__c from Contact where Authorised_Contact__c = true and "
-                    + "Account.Espresso_PC__Account_Number__c IN (" + getCommaSeparatedString(accountNumberSet) +")";
+                    + "Account.Espresso_PC__Account_Number__c IN (" + accountNumberExp +")";
             LOGGER.info("Query String to get Email Addresses : " + query);          
             try{
                  HashMap<String,Object>[] resultMap = querySFDC.executeQuery(query);
