@@ -48,7 +48,7 @@
             <column name="DURATION" precision="53" scale="0" not-null="true" />
         </property>
         <property name="retailPrice" type="double">
-            <column name="RETAIL_PRICE" precision="53" scale="0" not-null="true" />
+            <column name="RETAIL_PRICE" precision="10" scale="2" not-null="true" />
         </property>
         <property name="wholesalePrice" type="double">
             <column name="WHOLESALE_PRICE" precision="53" scale="0" not-null="true" />

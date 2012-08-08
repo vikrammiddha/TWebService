@@ -47,8 +47,10 @@ public class ReportsHelper {
     private static int IDX_ACCOUNT_NUMBER = 0;
     private static int IDX_REQUIRE_SERV = 1;
     private static int IDX_REQUIRE_TEL = 2;
+    private static int IDX_ACCOUNT_NAME = 3;
     /*Key Field values*/
     private String AccountNumber;
+    private String AccountName;
     private String RequireTelephony;
     private String RequireService;
     /*Call Report Mapping*/
@@ -169,8 +171,10 @@ public class ReportsHelper {
                 AccountNumber = explodedValues[IDX_ACCOUNT_NUMBER];
                 RequireTelephony = explodedValues[IDX_REQUIRE_TEL];
                 RequireService = explodedValues[IDX_REQUIRE_SERV];
+                AccountName = explodedValues[IDX_ACCOUNT_NAME];
                 ratedCdrs = rch.getEvents(AccountNumber, Date.valueOf(billDate));
                 callReportObject = rch.getCallReport(AccountNumber, Date.valueOf(billDate));
+                callReport = new ArrayList<CallReport>();
                 for (Object eachReport : callReportObject) {
                     Object[] row = (Object[]) eachReport;
                     callReport.add(new CallReport(Integer.valueOf(row[IDX_COUNT].toString()), row[IDX_DESTINATION].toString(), Double.valueOf(row[IDX_COST].toString())));
@@ -178,7 +182,7 @@ public class ReportsHelper {
                 LOGGER.info("Total number of Rated records queried for AccountNumber " + keySet + " is : " + ratedCdrs.size());
                 rCdrPack.put(AccountNumber, ratedCdrs);
                 servicePack.put(AccountNumber, callReport);
-                itemisations.add(new Itemisation(AccountNumber, RequireTelephony, RequireService, rCdrPack, servicePack, biItemMap.get(keySet)));
+                itemisations.add(new Itemisation(AccountNumber, AccountName, RequireTelephony, RequireService, rCdrPack.get(AccountNumber), servicePack.get(AccountNumber), biItemMap.get(keySet)));
             }
 
             for (Itemisation itemisation : itemisations) {

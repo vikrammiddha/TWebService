@@ -2,6 +2,8 @@ package com.bean;
 // Generated Jul 26, 2012 11:20:49 AM by Hibernate Tools 3.2.1.GA
 
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Date;
 
 /**
@@ -52,6 +54,7 @@ public class RatedCdr  implements java.io.Serializable {
      private String msn;
      private String zoneDestination;
      private String billRunId;
+     private NumberFormat formatter;
 
     public RatedCdr() {
     }
@@ -71,7 +74,6 @@ public class RatedCdr  implements java.io.Serializable {
         this.destination = destination;
         this.caller = caller;
         this.duration = duration;
-        this.retailPrice = retailPrice;
         this.wholesalePrice = wholesalePrice;
         this.localPolo = localPolo;
         this.localRolo = localRolo;
@@ -83,7 +85,8 @@ public class RatedCdr  implements java.io.Serializable {
         this.aggregationId = aggregationId;
         this.billStatus = billStatus;
         this.state = state;
-        this.callRef = callRef;
+        this.callRef = callRef;this.formatter = new DecimalFormat("#0.00");
+        this.retailPrice = Double.valueOf(formatter.format(retailPrice));
     }
     public RatedCdr(int id, String cdrGuid, String type, String service, String direction, String network, String remoteNetwork, String remoteSwitch, String portingPrefix, Date startTimestamp, String user, String destination, String caller, double duration, double retailPrice, double wholesalePrice, double localPolo, double localRolo, double localTransit, double remotePolo, double remoteRolo, double remoteTransit, String reseller, String financialCode, String billId, String aggregationId, String billStatus, int state, String callRef, String numberType, String resellerCode, String wholesaleDescription, String retailDescription, String localcostDescription, String remotecostDescription, String localtransitDescription, String remotetransitDescription, String platform, String timeBand, String msn, String zoneDestination, String billRunId) {
        this.id = id;
@@ -100,7 +103,6 @@ public class RatedCdr  implements java.io.Serializable {
        this.destination = destination;
        this.caller = caller;
        this.duration = duration;
-       this.retailPrice = retailPrice;
        this.wholesalePrice = wholesalePrice;
        this.localPolo = localPolo;
        this.localRolo = localRolo;
@@ -127,7 +129,8 @@ public class RatedCdr  implements java.io.Serializable {
        this.timeBand = timeBand;
        this.msn = msn;
        this.zoneDestination = zoneDestination;
-       this.billRunId = billRunId;
+       this.billRunId = billRunId;this.formatter = new DecimalFormat("#0.00");
+       this.retailPrice = Double.valueOf(formatter.format(retailPrice));
     }
    
     public int getId() {
@@ -233,7 +236,8 @@ public class RatedCdr  implements java.io.Serializable {
     }
     
     public void setRetailPrice(double retailPrice) {
-        this.retailPrice = retailPrice;
+        this.formatter = new DecimalFormat("#0.00");
+        this.retailPrice = Double.valueOf(formatter.format(retailPrice));
     }
     public double getWholesalePrice() {
         return this.wholesalePrice;

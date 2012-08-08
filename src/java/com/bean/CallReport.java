@@ -4,6 +4,12 @@
  */
 package com.bean;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.FieldPosition;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+
 /**
  *
  * @author Nimil
@@ -13,11 +19,12 @@ public class CallReport {
     private int count;
     private String zoneDestination;
     private Double retailPrice;
-
+    private NumberFormat formatter;
     public CallReport(int count, String zoneDestination, Double retailPrice) {
         this.count = count;
         this.zoneDestination = zoneDestination;
-        this.retailPrice = retailPrice;
+        this.formatter = new DecimalFormat("#0.00");
+        this.retailPrice = Double.valueOf(formatter.format(retailPrice));
     }
 
     public int getCount() {

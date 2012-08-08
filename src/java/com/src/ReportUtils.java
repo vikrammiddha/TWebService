@@ -143,6 +143,7 @@ public class ReportUtils {
                     biObj.setDateTo((String)hm.get("ESPRESSO_BILL__BILL_TO__C"));
                     biObj.setRetalGross((String)hm.get("ESPRESSO_BILL__GROSS_AMOUNT_1__C"));
                     biObj.setAccountNumber((String)hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.ESPRESSO_PC__ACCOUNT_NUMBER__C"));
+                    biObj.setAccountName((String)hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.NAME"));
                     biObj.setIdentifier((String)hm.get("ESPRESSO_BILL__ACCOUNT_SERVICE_LINE__R.ESPRESSO_PC__BILLING_IDENTIFIER__C"));
                     biObj.setRequireServItemisation((((String)hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.SUMMARY_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")) ? true : false);
                     biObj.setRequireTelItemisation((((String)hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.TEL_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")) ? true : false);
@@ -150,11 +151,11 @@ public class ReportUtils {
                     retBIList.add(biObj);
                 }
                 for(BillItem billItem : retBIList){
-                    if(retBIMap.containsKey(billItem.getAccountNumber()+","+billItem.getRequireServItemisation()+","+billItem.getRequireTelItemisation())){
-                        retBIMap.get(billItem.getAccountNumber()+","+billItem.getRequireServItemisation()+","+billItem.getRequireTelItemisation()).add(billItem);
+                    if(retBIMap.containsKey(billItem.getAccountNumber()+","+billItem.getRequireServItemisation()+","+billItem.getRequireTelItemisation()+","+billItem.getAccountName())){
+                        retBIMap.get(billItem.getAccountNumber()+","+billItem.getRequireServItemisation()+","+billItem.getRequireTelItemisation()+","+billItem.getAccountName()).add(billItem);
                     }else{
-                        retBIMap.put(billItem.getAccountNumber()+","+billItem.getRequireServItemisation()+","+billItem.getRequireTelItemisation(), new ArrayList<BillItem>());
-                        retBIMap.get(billItem.getAccountNumber()+","+billItem.getRequireServItemisation()+","+billItem.getRequireTelItemisation()).add(billItem);
+                        retBIMap.put(billItem.getAccountNumber()+","+billItem.getRequireServItemisation()+","+billItem.getRequireTelItemisation()+","+billItem.getAccountName(), new ArrayList<BillItem>());
+                        retBIMap.get(billItem.getAccountNumber()+","+billItem.getRequireServItemisation()+","+billItem.getRequireTelItemisation()+","+billItem.getAccountName()).add(billItem);
                     }
                 }
             }catch(Exception e){

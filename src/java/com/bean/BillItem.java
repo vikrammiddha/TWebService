@@ -23,6 +23,7 @@ public class BillItem {
     private String billDate = "";
     private String accountNumber = "";
     private String identifier = "";
+    private String accountName = "";
     private Boolean requireTelItemisation = null;
     private Boolean requireServItemisation = null;
 
@@ -73,6 +74,12 @@ public class BillItem {
     }
     public void setAccountNumber(String accountNumber) {
         this.accountNumber = accountNumber;
+    }
+    public String getAccountName() {
+        return accountName;
+    }
+    public void setAccountName(String accountName) {
+        this.accountName = accountName;
     }
     public Boolean getRequireTelItemisation() {
         return requireTelItemisation;

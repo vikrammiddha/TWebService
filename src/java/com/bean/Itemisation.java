@@ -13,15 +13,17 @@ import java.util.HashMap;
  */
 public class Itemisation {
     String AccountNumber;
+    String AccountName;
     String EmailAddress;
     Boolean RequireTelephony;
     Boolean RequireService;
-    private HashMap<String,ArrayList<RatedCdr>> rCdrs;
+    private ArrayList<RatedCdr> rCdrs;
     private ArrayList<BillItem> bItems;
-    HashMap<String, ArrayList<CallReport>> summary;
+    private ArrayList<CallReport> summary;
     
-    public Itemisation(String AccountNumber, String RequireTelephony, String RequireService,HashMap<String,ArrayList<RatedCdr>> rCdrs,HashMap<String, ArrayList<CallReport>> summary, ArrayList<BillItem> bItems){
+    public Itemisation(String AccountNumber, String AccountName, String RequireTelephony, String RequireService,ArrayList<RatedCdr> rCdrs,ArrayList<CallReport> summary, ArrayList<BillItem> bItems){
         this.AccountNumber = AccountNumber;
+        this.AccountName = AccountName;
         this.rCdrs = rCdrs;
         this.bItems = bItems;
         this.RequireTelephony = ((RequireTelephony.equalsIgnoreCase("true")) ? true : false);
@@ -30,7 +32,7 @@ public class Itemisation {
     }
     
     
-    public HashMap<String,ArrayList<RatedCdr>> getRatedCdrs(){
+    public ArrayList<RatedCdr> getRatedCdrs(){
         return this.rCdrs;
     }
     
@@ -40,6 +42,10 @@ public class Itemisation {
     
     public String getAccountNumber(){
         return this.AccountNumber;
+    }
+    
+    public String getAccountName(){
+        return this.AccountName;
     }
     
     public String getEmailAddress(){
@@ -58,7 +64,7 @@ public class Itemisation {
         return this.RequireService;
     }
     
-    public HashMap<String, ArrayList<CallReport>> getSummary(){
+    public ArrayList<CallReport> getSummary(){
         return this.summary;
     }
     

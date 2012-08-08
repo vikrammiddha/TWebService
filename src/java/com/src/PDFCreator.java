@@ -50,9 +50,10 @@ public class PDFCreator {
 	public boolean valid = false;
     public PDFCreator(ArrayList<Itemisation> itemisations, String runId) throws Exception {
 
-        Document document = new Document(PageSize.A4, 10, 10, 10, 10);
+        
         //PdfWriter.getInstance(document, new FileOutputStream("C:\\Users\\Neha\\Documents\\NetBeansProjects\\JavaiText\\src\\javaitext\\AddBigTable.pdf"));
         for (Itemisation itemisation : itemisations) {
+            Document document = new Document(PageSize.A4, 10, 10, 10, 10);
             LOGGER.info("Creating PDF for account :" + itemisation.getAccountNumber() + "at : " + config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf");
             PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf"));
             LOGGER.info("Created PDF for account :" + itemisation.getAccountNumber() + "at : " + config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf");
@@ -154,7 +155,7 @@ public class PDFCreator {
         cell.setBorder(0);
         cell.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
         table.addCell(cell);
-        cell = new PdfPCell(new Phrase("The Paper Company Limited", whiteFont));
+        cell = new PdfPCell(new Phrase(itemisation.getAccountName(), whiteFont));
         cell.setColspan(6);
         cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
         cell.setTop(1);
@@ -178,8 +179,9 @@ public class PDFCreator {
         }
 
         document.add(Chunk.NEWLINE);
-
-        for (CallReport cR : itemisation.getSummary().get(itemisation.getAccountNumber())) {
+        totalCost = 0.0;
+        totalCalls = 0;
+        for (CallReport cR : itemisation.getSummary()) {
             cell = new PdfPCell(new Paragraph(cR.getZoneDestination(), smallBoldFont));
             cell.setBorder(0);
             cell.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
@@ -334,7 +336,7 @@ public class PDFCreator {
         //ResultSet r = s.executeQuery(" SELECT UserID,CallDate,CallTime,Duration,Telephone Number,Time Band,Cost FROM LARGE_TABLE);
         //while(r.next())
         totalCost = 0.0;
-        for (RatedCdr rCdr : itemisation.getRatedCdrs().get(itemisation.getAccountNumber())) {
+        for (RatedCdr rCdr : itemisation.getRatedCdrs()) {
             //PdfPCell cell = new PdfPCell(new Paragraph(String.valueOf(row)));
             cell3 = new PdfPCell(new Paragraph(rCdr.getUser(), smallFont));
             //cell.setHorizontalAlignment(100);
