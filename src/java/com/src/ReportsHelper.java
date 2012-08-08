@@ -59,8 +59,7 @@ public class ReportsHelper {
     private static int IDX_COUNT = 2;
     /*ReportUtils contains helper mehtods.*/
     private ReportUtils utils = null;
-    /*RatedCdr Records*/
-    RatedCdrHelper rch = new RatedCdrHelper();
+    
     /*RatedCdr Records*/
     ArrayList<RatedCdr> ratedCdrs = new ArrayList<RatedCdr>();
     /*Service Itemisation Records*/
@@ -118,7 +117,8 @@ public class ReportsHelper {
         HashMap<String, ArrayList<BillItem>> biItemMap = new HashMap<String, ArrayList<BillItem>>();
 
         EWSConnection ewsObj = new EWSConnection();
-
+        /*RatedCdr Records*/
+        RatedCdrHelper rch = new RatedCdrHelper();
         /*If all the 3 input variables are null, return null.*/
         if (utils.isBlank(accountNumber) && utils.isBlank(billRunId) && utils.isBlank(billId)) {
             return null;
@@ -202,12 +202,14 @@ public class ReportsHelper {
             LOGGER.error("Exception occured while preparing data for Bill Item. Cause : " + e.getCause().getMessage());
             emailBody.append("Reports could not be generated for run Id :").append(runId).append(". Cause :").append(e.getCause().getMessage()).append("\n");
             ewsObj.sendEmail(appConfig.getErrorSubject() + ". RunId :" + runId, emailBody.toString());
+            rch.closeSession();
             return -1;
         }
 
         //LOGGER.info("returning the list" + biItemList);
         emailBody.append("Successfully generated the Reports for Run Id :").append(runId).append("\n");
         ewsObj.sendEmail(appConfig.getSuccessSubject() + ". RunId :" + runId, emailBody.toString());
+        rch.closeSession();
         return biItemMap.size();
     }
 }

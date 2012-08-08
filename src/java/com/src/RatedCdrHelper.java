@@ -5,6 +5,7 @@
 package com.src;
 
 import com.bean.RatedCdr;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.ArrayList;
 import org.hibernate.Criteria;
@@ -59,5 +60,10 @@ public class RatedCdrHelper {
         mdt.setDayOfMonth(mdt.dayOfMonth().getMaximumValue());
         mdt.setMillisOfDay(mdt.millisOfDay().getMaximumValue());
         return (Date) mdt.toDate();
+    }
+    
+    public void closeSession() throws SQLException{
+        this.session.clear();
+        this.session.close();
     }
 }
