@@ -47,14 +47,20 @@ public class Configurator {
 
         try {
                 File directory = new File (".");
-                System.out.println("Canonical path ==== "+ directory.getCanonicalPath());
-                System.out.println("Canonical path ====" + directory.getCanonicalPath().substring(0,directory.getCanonicalPath().lastIndexOf("\\")) + "\\webapps\\GenerateReports\\Resilient.properties");
+                LOGGER.info("Canonical path ==== "+ directory.getCanonicalPath());
+                
                 FileInputStream fis ;
                 
                 try{
-                    fis = new FileInputStream("Resilient.properties");
+                    fis = new FileInputStream("C:/MakePos/Resilient.properties");
                 }catch(FileNotFoundException e){
-                    fis = new FileInputStream(directory.getCanonicalPath().substring(0,directory.getCanonicalPath().lastIndexOf("\\")) + "\\webapps\\GenerateReports\\Resilient.properties"); 
+                    try{
+                        LOGGER.info("Canonical path ====" + directory.getCanonicalPath().substring(0,directory.getCanonicalPath().lastIndexOf("\\")) + "\\webapps\\GenerateReports\\Resilient.properties");
+                        fis = new FileInputStream(directory.getCanonicalPath().substring(0,directory.getCanonicalPath().lastIndexOf("\\")) + "\\webapps\\GenerateReports\\Resilient.properties"); 
+                    }catch(Exception e1){
+                        LOGGER.info("Canonical path ====" + directory.getCanonicalPath()+ "\\webapps\\GenerateReports\\Resilient.properties");
+                        fis = new FileInputStream(directory.getCanonicalPath()+ "\\webapps\\GenerateReports\\Resilient.properties"); 
+                    }
                 }catch(Exception e){
                     fis = new FileInputStream("C:/Resilient.properties");
                 }                

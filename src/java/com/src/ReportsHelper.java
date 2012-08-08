@@ -112,7 +112,7 @@ public class ReportsHelper {
 
         LOGGER.info("Method Started : generateReports");
 
-        LOGGER.info("Input values . account Number :" + accountNumber + ", billRunId :" + billRunId + ", billId :" + billId);
+        LOGGER.info("Input values . account Number :" + accountNumber + ", billRunId :" + billRunId + ", billId :" + billId + ", RequestId :" + runId + ", BillDate :" + billDate);
 
         /*This ArrayList contains all the data queried from SFDC.*/
         HashMap<String, ArrayList<BillItem>> biItemMap = new HashMap<String, ArrayList<BillItem>>();
@@ -156,14 +156,14 @@ public class ReportsHelper {
                 }
             }
 
-            LOGGER.info("Query prepared : " + query);
+            //LOGGER.info("Query prepared : " + query);
 
             //query += " limit 1";
 
             /*Populate the data returned from SFDC in Arraylist of BillItem bean.*/
             biItemMap = utils.populateBillItemBeans(query, querySfdc);
 
-            LOGGER.info("Total number of Bill Item records queried: " + biItemMap.size());
+            LOGGER.info("Total number Accounts returned: " + biItemMap.size());
             Set<String> bItemKeys = biItemMap.keySet();
             // This is the place where Nimil's code will start with bitemList as Input;
             for (String keySet : bItemKeys) {
@@ -173,6 +173,7 @@ public class ReportsHelper {
                 RequireService = explodedValues[IDX_REQUIRE_SERV];
                 AccountName = explodedValues[IDX_ACCOUNT_NAME];
                 ratedCdrs = rch.getEvents(AccountNumber, Date.valueOf(billDate));
+                LOGGER.info("ratedCdrs queried");
                 callReportObject = rch.getCallReport(AccountNumber, Date.valueOf(billDate));
                 callReport = new ArrayList<CallReport>();
                 for (Object eachReport : callReportObject) {
@@ -198,8 +199,8 @@ public class ReportsHelper {
             /*Create the pdfs*/
             utils.createPDF(itemisations,runId);
         } catch (Exception e) {
-            LOGGER.error("Exception occured while preparing data for Bill Item. Cause : " + e.getMessage());
-            emailBody.append("Reports could not be generated for run Id :").append(runId).append(". Cause :").append(e.getMessage()).append("\n");
+            LOGGER.error("Exception occured while preparing data for Bill Item. Cause : " + e.getCause().getMessage());
+            emailBody.append("Reports could not be generated for run Id :").append(runId).append(". Cause :").append(e.getCause().getMessage()).append("\n");
             ewsObj.sendEmail(appConfig.getErrorSubject() + ". RunId :" + runId, emailBody.toString());
             return -1;
         }

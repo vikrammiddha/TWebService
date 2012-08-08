@@ -49,9 +49,8 @@ public class GenerateReportWS {
         
     }
     
-    @WebMethod(operationName = "SendEmail")
-    @Oneway
-    public void SendEmail() {
+    @WebMethod(operationName = "SendEmail")    
+    public String SendEmail() {
         try{
             
             EWSConnect ewsObj = new EWSConnect();
@@ -60,5 +59,6 @@ public class GenerateReportWS {
         }catch(Exception e){
             LOGGER.error("Exception occured while emailing reports. Cause : " + e.getMessage());
         }
+        return "";
     }
 }
