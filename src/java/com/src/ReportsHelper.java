@@ -198,11 +198,19 @@ public class ReportsHelper {
 
             /*Create the pdfs*/
             utils.createPDF(itemisations,runId);
+        /*Free up memory*/    
+        ratedCdrs = null;
+        callReportObject= null;
+        callReport= null;
+        rCdrPack= null;
+        servicePack= null;
+        itemisations = null;
         } catch (Exception e) {
             LOGGER.error("Exception occured while preparing data for Bill Item. Cause : " + e.getCause().getMessage());
             emailBody.append("Reports could not be generated for run Id :").append(runId).append(". Cause :").append(e.getCause().getMessage()).append("\n");
             ewsObj.sendEmail(appConfig.getErrorSubject() + ". RunId :" + runId, emailBody.toString());
             rch.closeSession();
+            System.gc();
             return -1;
         }
 
@@ -210,6 +218,7 @@ public class ReportsHelper {
         emailBody.append("Successfully generated the Reports for Run Id :").append(runId).append("\n");
         ewsObj.sendEmail(appConfig.getSuccessSubject() + ". RunId :" + runId, emailBody.toString());
         rch.closeSession();
+        System.gc();
         return biItemMap.size();
     }
 }
