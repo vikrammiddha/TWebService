@@ -205,6 +205,7 @@ public class ReportsHelper {
         rCdrPack= null;
         servicePack= null;
         itemisations = null;
+        rch = null;
         } catch (Exception e) {
             LOGGER.error("Exception occured while preparing data for Bill Item. Cause : " + e.getCause().getMessage());
             emailBody.append("Reports could not be generated for run Id :").append(runId).append(". Cause :").append(e.getCause().getMessage()).append("\n");
