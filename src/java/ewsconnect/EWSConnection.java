@@ -48,26 +48,27 @@ public class EWSConnection {
     }
 
     private boolean process(File file) {
+        boolean processed = false;
         try {
             LOGGER.info("Processing Report : " + file);
             PdfReader ReadInputPDF = new PdfReader(file.getAbsolutePath());
             HashMap<String, String> metaDataInfo = ReadInputPDF.getInfo();
             LOGGER.info("PDF Metadata : " + metaDataInfo.get("Keywords"));
             //System.out.println(metaDataInfo.get("Keywords"));
-            emailReport(file.getAbsolutePath(),metaDataInfo.get("Keywords"));
+            processed = emailReport(file.getAbsolutePath(),metaDataInfo.get("Keywords"));
             /* dumping metadata on the screen */
-            return true;
+            return processed;
         } catch (Exception ex) {
             java.util.logging.Logger.getLogger(EWSConnection.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
+            return processed;
         } 
         
     }
  
 
-    public void emailReport(String path,String emailToAddress) throws Exception {
+    public boolean emailReport(String path,String emailToAddress) throws Exception {
         //Send Email 
-        
+        boolean sent = false;
         LOGGER.info("Emailing Report : " + path);
         try{
             EmailMessage msg = new EmailMessage(service);
@@ -77,9 +78,13 @@ public class EWSConnection {
             msg.getToRecipients().add(emailToAddress);
             msg.getAttachments().addFileAttachment(path);
             msg.send();
+            sent = true;
         }catch(Exception e){
             LOGGER.error("Could not send email for the report :" + path + ". Cause :" + e.getMessage());
             throw new Exception(e);
+        }
+        finally{
+            return sent;
         }
     }
     
