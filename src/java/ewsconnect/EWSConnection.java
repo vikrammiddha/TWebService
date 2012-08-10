@@ -119,7 +119,7 @@ public class EWSConnection {
             String[] children = dir.list();
             File file = null;
             File archiveDir = new File(appConfig.getPdfArchiveDir());
-            File errorDir = new File(appConfig.getErrorSubject());
+            File errorDir = new File(appConfig.getPdfErrorDir());
             for (int i = 0; i < children.length; i++) {
                 file = new File(dir.getAbsoluteFile()+"\\"+children[i]);
                 processedFile = process(file);

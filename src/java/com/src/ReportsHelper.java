@@ -22,7 +22,6 @@ import com.bean.CallReport;
 import com.bean.Itemisation;
 import com.bean.RatedCdr;
 import ewsconnect.EWSConnection;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,23 +42,8 @@ public class ReportsHelper {
     /*Initializing Logger.*/
     private static Logger LOGGER = Logger.getLogger(ReportsHelper.class);
     /*Key fields from HashMap of BillItems that need to be assembled after Explode*/
-    private static String[] explodedValues;
-    private static int IDX_ACCOUNT_NUMBER = 0;
-    private static int IDX_REQUIRE_SERV = 1;
-    private static int IDX_REQUIRE_TEL = 2;
-    private static int IDX_ACCOUNT_NAME = 3;
-    /*Key Field values*/
-    private String AccountNumber;
-    private String AccountName;
-    private String RequireTelephony;
-    private String RequireService;
-    /*Call Report Mapping*/
-    private static int IDX_DESTINATION = 0;
-    private static int IDX_COST = 1;
-    private static int IDX_COUNT = 2;
     /*ReportUtils contains helper mehtods.*/
     private ReportUtils utils = null;
-    
     /*RatedCdr Records*/
     ArrayList<RatedCdr> ratedCdrs = new ArrayList<RatedCdr>();
     /*Service Itemisation Records*/
@@ -70,7 +54,7 @@ public class ReportsHelper {
     /*Service Itemisation Pack*/
     HashMap<String, ArrayList<CallReport>> servicePack = new HashMap<String, ArrayList<CallReport>>();
     /*Itemisation Records*/
-    ArrayList<Itemisation> itemisations = new ArrayList<Itemisation>();
+    Itemisation itemisation = new Itemisation();
     /*Set of account Numbers*/
     Set<String> accountNumbers = new HashSet<String>();
     /*Email address map for each account Number*/
@@ -79,7 +63,7 @@ public class ReportsHelper {
     private StringBuffer emailBody = new StringBuffer();
 
     /*Constructor. This initiates the SFDC Connection and other variables.*/
-    public ReportsHelper() throws ResilientException {
+    public ReportsHelper() throws ResilientException, Exception {
 
         appConfig = Configurator.getAppConfig();
 
@@ -117,8 +101,6 @@ public class ReportsHelper {
         HashMap<String, ArrayList<BillItem>> biItemMap = new HashMap<String, ArrayList<BillItem>>();
 
         EWSConnection ewsObj = new EWSConnection();
-        /*RatedCdr Records*/
-        RatedCdrHelper rch = new RatedCdrHelper();
         /*If all the 3 input variables are null, return null.*/
         if (utils.isBlank(accountNumber) && utils.isBlank(billRunId) && utils.isBlank(billId)) {
             return null;
@@ -164,53 +146,25 @@ public class ReportsHelper {
             biItemMap = utils.populateBillItemBeans(query, querySfdc);
 
             LOGGER.info("Total number Accounts returned: " + biItemMap.size());
+            
             Set<String> bItemKeys = biItemMap.keySet();
+            
+            accountNumbers = utils.getAccountNumbers(bItemKeys);
+            
             // This is the place where Nimil's code will start with bitemList as Input;
-            for (String keySet : bItemKeys) {
-                explodedValues = keySet.split(",");
-                AccountNumber = explodedValues[IDX_ACCOUNT_NUMBER];
-                RequireTelephony = explodedValues[IDX_REQUIRE_TEL];
-                RequireService = explodedValues[IDX_REQUIRE_SERV];
-                AccountName = explodedValues[IDX_ACCOUNT_NAME];
-                ratedCdrs = rch.getEvents(AccountNumber, Date.valueOf(billDate));
-                LOGGER.info("ratedCdrs queried");
-                callReportObject = rch.getCallReport(AccountNumber, Date.valueOf(billDate));
-                callReport = new ArrayList<CallReport>();
-                for (Object eachReport : callReportObject) {
-                    Object[] row = (Object[]) eachReport;
-                    callReport.add(new CallReport(Integer.valueOf(row[IDX_COUNT].toString()), row[IDX_DESTINATION].toString(), Double.valueOf(row[IDX_COST].toString())));
-                }
-                LOGGER.info("Total number of Rated records queried for AccountNumber " + keySet + " is : " + ratedCdrs.size());
-                rCdrPack.put(AccountNumber, ratedCdrs);
-                servicePack.put(AccountNumber, callReport);
-                itemisations.add(new Itemisation(AccountNumber, AccountName, RequireTelephony, RequireService, rCdrPack.get(AccountNumber), servicePack.get(AccountNumber), biItemMap.get(keySet)));
-            }
-
-            for (Itemisation itemisation : itemisations) {
-                accountNumbers.add(itemisation.getAccountNumber());
-            }
-
+            
             accountAuthorizedEmailMap = utils.getAccountAuthorizedEmailMap(accountNumbers, querySfdc);
 
-            for (Itemisation itemisation : itemisations) {
-                itemisation.setEmailAddress(accountAuthorizedEmailMap.get(itemisation.getAccountNumber()));
-            }
-
-            /*Create the pdfs*/
-            utils.createPDF(itemisations,runId);
-        /*Free up memory*/    
-        ratedCdrs = null;
-        callReportObject= null;
-        callReport= null;
-        rCdrPack= null;
-        servicePack= null;
-        itemisations = null;
-        rch = null;
+            /*Loop through each bill and create pdf. 
+             */
+            utils.buildItemisation(bItemKeys, billDate, accountAuthorizedEmailMap, biItemMap,runId);
+            
+            
+            utils.closeConnections();
         } catch (Exception e) {
             LOGGER.error("Exception occured while preparing data for Bill Item. Cause : " + e.getCause().getMessage());
             emailBody.append("Reports could not be generated for run Id :").append(runId).append(". Cause :").append(e.getCause().getMessage()).append("\n");
             ewsObj.sendEmail(appConfig.getErrorSubject() + ". RunId :" + runId, emailBody.toString());
-            rch.closeSession();
             System.gc();
             return -1;
         }
@@ -218,7 +172,6 @@ public class ReportsHelper {
         //LOGGER.info("returning the list" + biItemList);
         emailBody.append("Successfully generated the Reports for Run Id :").append(runId).append("\n");
         ewsObj.sendEmail(appConfig.getSuccessSubject() + ". RunId :" + runId, emailBody.toString());
-        rch.closeSession();
         System.gc();
         return biItemMap.size();
     }

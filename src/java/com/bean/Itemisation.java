@@ -12,6 +12,7 @@ import java.util.HashMap;
  * @author Nimil
  */
 public class Itemisation {
+
     String AccountNumber;
     String AccountName;
     String EmailAddress;
@@ -20,8 +21,13 @@ public class Itemisation {
     private ArrayList<RatedCdr> rCdrs;
     private ArrayList<BillItem> bItems;
     private ArrayList<CallReport> summary;
+
     
-    public Itemisation(String AccountNumber, String AccountName, String RequireTelephony, String RequireService,ArrayList<RatedCdr> rCdrs,ArrayList<CallReport> summary, ArrayList<BillItem> bItems){
+    public Itemisation() {
+        //throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    public void setItemisation(String AccountNumber, String AccountName, String RequireTelephony, String RequireService, ArrayList<RatedCdr> rCdrs, ArrayList<CallReport> summary, ArrayList<BillItem> bItems) {
         this.AccountNumber = AccountNumber;
         this.AccountName = AccountName;
         this.rCdrs = rCdrs;
@@ -30,42 +36,40 @@ public class Itemisation {
         this.RequireService = ((RequireService.equalsIgnoreCase("true")) ? true : false);
         this.summary = summary;
     }
-    
-    
-    public ArrayList<RatedCdr> getRatedCdrs(){
+
+    public ArrayList<RatedCdr> getRatedCdrs() {
         return this.rCdrs;
     }
-    
-    public ArrayList<BillItem> getBillItems(){
+
+    public ArrayList<BillItem> getBillItems() {
         return this.bItems;
     }
-    
-    public String getAccountNumber(){
+
+    public String getAccountNumber() {
         return this.AccountNumber;
     }
-    
-    public String getAccountName(){
+
+    public String getAccountName() {
         return this.AccountName;
     }
-    
-    public String getEmailAddress(){
+
+    public String getEmailAddress() {
         return this.EmailAddress;
     }
-    
-    public void setEmailAddress(String EmailAddress){
+
+    public void setEmailAddress(String EmailAddress) {
         this.EmailAddress = EmailAddress;
     }
-    
-    public Boolean getRequireTelephony(){
+
+    public Boolean getRequireTelephony() {
         return this.RequireTelephony;
     }
-    
-    public Boolean getRequireService(){
+
+    public Boolean getRequireService() {
         return this.RequireService;
     }
-    
-    public ArrayList<CallReport> getSummary(){
+
+    public ArrayList<CallReport> getSummary() {
         return this.summary;
     }
-    
 }

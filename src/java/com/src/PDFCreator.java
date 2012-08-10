@@ -28,7 +28,6 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.BadElementException;
 import ewsconnect.EWSConnection;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import org.apache.log4j.Logger;
 
 public class PDFCreator {
@@ -46,29 +45,9 @@ public class PDFCreator {
     public static Double totalCost = 0.0;
     //Total Number of Calls
     public static int totalCalls = 0;
+    public boolean valid = false;
 
-	public boolean valid = false;
-    public PDFCreator(ArrayList<Itemisation> itemisations, String runId) throws Exception {
-
-        
-        //PdfWriter.getInstance(document, new FileOutputStream("C:\\Users\\Neha\\Documents\\NetBeansProjects\\JavaiText\\src\\javaitext\\AddBigTable.pdf"));
-        for (Itemisation itemisation : itemisations) {
-            Document document = new Document(PageSize.A4, 10, 10, 10, 10);
-            LOGGER.info("Creating PDF for account :" + itemisation.getAccountNumber() + "at : " + config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf");
-            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf"));
-            LOGGER.info("Created PDF for account :" + itemisation.getAccountNumber() + "at : " + config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf");
-            writer.setBoxSize("art", new Rectangle(10, 10, 559, 788));
-            HeaderFooter event = new HeaderFooter();
-            writer.setPageEvent(event);
-            document.open();
-            addMetaData(document, itemisation);
-            createTable1(document, itemisation);
-            createTable2(document, itemisation);
-            document.add(Chunk.NEXTPAGE);
-            createTable3(document, itemisation);
-            document.close();
-        }
-		this.valid = true;
+    public PDFCreator() throws Exception {
     }
 
     private static void addMetaData(Document document, Itemisation itemisation) {
@@ -381,8 +360,33 @@ public class PDFCreator {
 
     }
 
+    void createPdf(Itemisation itemisation, String runId) throws Exception {
+        Document document = new Document(PageSize.A4, 10, 10, 10, 10);
+        LOGGER.info("Creating PDF for account :" + itemisation.getAccountNumber() + "at : " + config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf");
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf"));
+        LOGGER.info("Created PDF for account :" + itemisation.getAccountNumber() + "at : " + config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf");
+        writer.setBoxSize("art", new Rectangle(10, 10, 559, 788));
+        HeaderFooter event = new HeaderFooter();
+        writer.setPageEvent(event);
+        document.open();
+        addMetaData(document, itemisation);
+        if (itemisation.getRequireService()) {
+            createTable1(document, itemisation);
+        }
+        createTable2(document, itemisation);
+        document.add(Chunk.NEXTPAGE);
+        if (itemisation.getRequireTelephony()) {
+            createTable3(document, itemisation);
+        }
+        document.close();
+
+        this.valid = true;
+    }
+
     static class HeaderFooter extends PdfPageEventHelper {
+
         public static Logger LOGGER = Logger.getLogger(EWSConnection.class);
+
         @Override
         public void onStartPage(PdfWriter writer, Document document) {
             try {
