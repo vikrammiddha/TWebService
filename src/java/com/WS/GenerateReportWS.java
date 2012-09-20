@@ -42,7 +42,7 @@ public class GenerateReportWS {
             //System.out.println("ret List " + retList.get(0).getAccountNumber());
             //return retList;
         }catch(Exception e){
-            LOGGER.error("Exception occured in the web serice call generateReports. Cause : " + e.getMessage() );
+            LOGGER.error("Exception occured in the web serice call generateReports. Cause : " + e.fillInStackTrace() );
         }
        
         return null;

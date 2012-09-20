@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jul 26, 2012 11:20:49 AM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="com.bean.InvoiceNumber" table="tblInvoiceNumbers" schema="dbo" catalog="BKI_DB">
+        <id name="InvoiceId" type="int">
+            <column name="InvoiceID" />
+            <generator class="assigned" />
+        </id>
+        <property name="InvoiceNumber" type="string">
+            <column name="invoiceNumber" length="99" not-null="true"/>
+        </property>
+        <property name="Tier1" type="string">
+            <column name="Tier1"  not-null="true" />
+        </property>
+        <property name="GeneratedOn" type="date">
+            <column name="GeneratedOn"  not-null="true" />
+        </property>
+        <property name="GeneratedBy" type="int">
+            <column name="GeneratedBy" not-null="true" />
+        </property>       
+    </class>
+</hibernate-mapping>

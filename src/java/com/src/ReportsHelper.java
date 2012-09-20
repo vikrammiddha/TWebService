@@ -61,6 +61,8 @@ public class ReportsHelper {
     HashMap<String, String> accountAuthorizedEmailMap = null;
     /*Email body*/
     private StringBuffer emailBody = new StringBuffer();
+    
+    public static String billDateVal = "";
 
     /*Constructor. This initiates the SFDC Connection and other variables.*/
     public ReportsHelper() throws ResilientException, Exception {
@@ -86,7 +88,7 @@ public class ReportsHelper {
     public static void main(String[] s) throws Exception {
 
         ReportsHelper mObj = new ReportsHelper();
-        mObj.generateReports("SS79926808", "", "", "GR-10", "");
+        mObj.generateReports("TH14225500-2", "", "", "", "2012-04-26");
 
     }
 
@@ -96,7 +98,9 @@ public class ReportsHelper {
         LOGGER.info("Method Started : generateReports");
 
         LOGGER.info("Input values . account Number :" + accountNumber + ", billRunId :" + billRunId + ", billId :" + billId + ", RequestId :" + runId + ", BillDate :" + billDate);
-
+        
+        billDateVal = billDate;
+                
         /*This ArrayList contains all the data queried from SFDC.*/
         HashMap<String, ArrayList<BillItem>> biItemMap = new HashMap<String, ArrayList<BillItem>>();
 
@@ -154,10 +158,18 @@ public class ReportsHelper {
             // This is the place where Nimil's code will start with bitemList as Input;
             
             accountAuthorizedEmailMap = utils.getAccountAuthorizedEmailMap(accountNumbers, querySfdc);
-
+            
+            /*Fetch the Invoice numbes from another database based on the account numbers.*/
+            
+            HashMap<String,String> accountNumInvoiceMap = new HashMap<String,String>();
+            
+            accountNumInvoiceMap = utils.generateInvoiceNumbers(accountNumbers);
+            
+            LOGGER.info("Fetched Invoice Numbers : " + accountNumInvoiceMap );
+            
             /*Loop through each bill and create pdf. 
              */
-            utils.buildItemisation(bItemKeys, billDate, accountAuthorizedEmailMap, biItemMap,runId);
+            utils.buildItemisation(bItemKeys, billDate, accountAuthorizedEmailMap, biItemMap,runId,accountNumInvoiceMap);
             
             
             utils.closeConnections();

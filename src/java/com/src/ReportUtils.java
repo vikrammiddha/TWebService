@@ -5,17 +5,25 @@ import Common.src.com.Config.Configurator;
 import Common.src.com.Exception.ResilientException;
 import com.bean.BillItem;
 import com.bean.CallReport;
+import com.bean.InvoiceNumber;
 import com.bean.Itemisation;
 import com.bean.RatedCdr;
 import ewsconnect.EWSConnection;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Level;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.MutableDateTime;
 
 /* 
 ########################################################################### 
@@ -62,6 +70,8 @@ public class ReportUtils {
     private static int IDX_COUNT = 2;
     private Itemisation itemisation = new Itemisation();
     PDFCreator pdfCreate ;
+    private String invoiceNumber = "";
+    
     public ReportUtils() throws Exception {
         try {
             appConfig = Configurator.getAppConfig();;
@@ -157,6 +167,8 @@ public class ReportUtils {
     public HashMap<String, ArrayList<BillItem>> populateBillItemBeans(String query, QuerySFDC querySFDC) throws ResilientException {
 
         ArrayList<BillItem> retBIList = new ArrayList<BillItem>();
+        HashMap<String,BillItem> groupedBIMap = new HashMap<String,BillItem>();
+        
         HashMap<String, ArrayList<BillItem>> retBIMap = new HashMap<String, ArrayList<BillItem>>();
         try {
             HashMap<String, Object>[] resultMap = querySFDC.executeQuery(query);
@@ -165,22 +177,34 @@ public class ReportUtils {
 
                 HashMap<String, Object> hm = resultMap[i];
                 BillItem biObj = new BillItem();
-
-                biObj.setAssetName((String) hm.get("ESPRESSO_BILL__ASSET__R.NAME"));
-                biObj.setBillDate((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__BILL_DATE__C"));
-                //biObj.setBillPeriod((String)hm.get("Espresso_Bill__Asset__R.Name"));
-                biObj.setDateFrom((String) hm.get("ESPRESSO_BILL__DATE_FROM__C"));
-                biObj.setDateTo((String) hm.get("ESPRESSO_BILL__BILL_TO__C"));
-                biObj.setRetalGross((String) hm.get("ESPRESSO_BILL__GROSS_AMOUNT_1__C"));
-                biObj.setAccountNumber((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.ESPRESSO_PC__ACCOUNT_NUMBER__C"));
-                biObj.setAccountName((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.NAME"));
-                biObj.setIdentifier((String) hm.get("ESPRESSO_BILL__ACCOUNT_SERVICE_LINE__R.ESPRESSO_PC__BILLING_IDENTIFIER__C"));
-                biObj.setRequireServItemisation((((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.SUMMARY_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")) ? true : false);
-                biObj.setRequireTelItemisation((((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.TEL_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")) ? true : false);
-
-                retBIList.add(biObj);
+                if(groupedBIMap.get((String) hm.get("ESPRESSO_BILL__ASSET__R.ESPRESSO_PC__OFFER__C")) == null){
+                    biObj.setAssetName((String) hm.get("ESPRESSO_BILL__ASSET__R.NAME"));
+                    biObj.setBillDate((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__BILL_DATE__C"));
+                    //biObj.setBillPeriod((String)hm.get("Espresso_Bill__Asset__R.Name"));
+                    biObj.setDateFrom(getFormatedDate((String) hm.get("ESPRESSO_BILL__DATE_FROM__C")));
+                    biObj.setDateTo(getFormatedDate((String) hm.get("ESPRESSO_BILL__DATE_TO__C")));
+                    biObj.setRetalGross((String) hm.get("ESPRESSO_BILL__GROSS_AMOUNT_1__C"));
+                    biObj.setAccountNumber((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.ESPRESSO_PC__ACCOUNT_NUMBER__C"));
+                    biObj.setAccountName((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.NAME"));
+                    biObj.setIdentifier((String) hm.get("ESPRESSO_BILL__ACCOUNT_SERVICE_LINE__R.ESPRESSO_PC__BILLING_IDENTIFIER__C"));
+                    biObj.setRequireServItemisation((((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.SUMMARY_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")) ? true : false);
+                    biObj.setRequireTelItemisation((((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.TEL_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")) ? true : false);
+                    biObj.setOfferName((String) hm.get("ESPRESSO_BILL__ASSET__R.ESPRESSO_PC__OFFER__R.NAME"));
+                    biObj.setOfferSFDCId((String) hm.get("ESPRESSO_BILL__ASSET_R.ESPRESSO_PC__OFFER_C"));
+                    groupedBIMap.put((String) hm.get("ESPRESSO_BILL__ASSET__R.ESPRESSO_PC__OFFER__C"),biObj);
+                    
+                }else{
+                    BillItem existingBIObj = groupedBIMap.get((String) hm.get("ESPRESSO_BILL__ASSET__R.ESPRESSO_PC__OFFER__C"));
+                    Double  newRetGrossAmount = Double.valueOf(existingBIObj.getRetalGross()) + Double.valueOf((String) hm.get("ESPRESSO_BILL__GROSS_AMOUNT_1__C"));
+                    existingBIObj.setRetalGross(String.valueOf(newRetGrossAmount));
+                    existingBIObj.setCount(existingBIObj.getCount()+1);
+                    groupedBIMap.put((String) hm.get("ESPRESSO_BILL__ASSET__R.ESPRESSO_PC__OFFER__C"),existingBIObj);
+                    
+                }
+                
+                //retBIList.add(groupedBIMap.values());
             }
-            for (BillItem billItem : retBIList) {
+            for (BillItem billItem : groupedBIMap.values()) {
                 if (retBIMap.containsKey(billItem.getAccountNumber() + "," + billItem.getRequireServItemisation() + "," + billItem.getRequireTelItemisation() + "," + billItem.getAccountName())) {
                     retBIMap.get(billItem.getAccountNumber() + "," + billItem.getRequireServItemisation() + "," + billItem.getRequireTelItemisation() + "," + billItem.getAccountName()).add(billItem);
                 } else {
@@ -197,8 +221,8 @@ public class ReportUtils {
     }
 
     /*Creation of PDF can be handled here*/
-    public void createPDF(Itemisation itemisation, String runId) throws Exception {
-        pdfCreate.createPdf(itemisation,runId);
+    public void createPDF(Itemisation itemisation, String runId, String invoiceNumber) throws Exception {
+        pdfCreate.createPdf(itemisation, runId, invoiceNumber);
     }
 
     /*Below function returns the map of Accountnumber and authorized contact email address.*/
@@ -234,13 +258,14 @@ public class ReportUtils {
         return retMap;
     }
 
-    public void buildItemisation(Set<String> bItemKeys, String billDate,HashMap<String, String> accountAuthorizedEmailMap, HashMap<String, ArrayList<BillItem>> biItemMap, String runId) throws Exception {
+    public void buildItemisation(Set<String> bItemKeys, String billDate,HashMap<String, String> accountAuthorizedEmailMap, HashMap<String, ArrayList<BillItem>> biItemMap, String runId, HashMap<String,String> invoiceMap) throws Exception {
         for (String keySet : bItemKeys) {
             explodedValues = keySet.split(",");
             AccountNumber = explodedValues[IDX_ACCOUNT_NUMBER];
             RequireTelephony = explodedValues[IDX_REQUIRE_TEL];
             RequireService = explodedValues[IDX_REQUIRE_SERV];
             AccountName = explodedValues[IDX_ACCOUNT_NAME];
+            invoiceNumber = invoiceMap.get(AccountNumber);
             ratedCdrs = rch.getEvents(AccountNumber, Date.valueOf(billDate));
             LOGGER.info("ratedCdrs queried");
             callReportObject = rch.getCallReport(AccountNumber, Date.valueOf(billDate));
@@ -253,7 +278,7 @@ public class ReportUtils {
             servicePack.put(AccountNumber, callReport);
             itemisation.setItemisation(AccountNumber, AccountName, RequireTelephony, RequireService, rCdrPack.get(AccountNumber), servicePack.get(AccountNumber), biItemMap.get(keySet));
             itemisation.setEmailAddress(accountAuthorizedEmailMap.get(AccountNumber));
-            createPDF(itemisation, runId);
+            createPDF(itemisation, runId, invoiceNumber);
 
         }
     }
@@ -285,5 +310,86 @@ public class ReportUtils {
     void closeConnections() throws SQLException {
         LOGGER.info("Closing Hibernate connection");
         rch.closeSession();
+    }
+    
+    public static String getBillPeriod() throws ParseException{
+        
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        
+        java.util.Date d = (java.util.Date)formatter.parse(ReportsHelper.billDateVal);
+        
+        DateTime dt = new DateTime(d);
+        
+        MutableDateTime mdt = new MutableDateTime(dt);
+        mdt.addMonths(-1);
+        mdt.setDayOfMonth(mdt.dayOfMonth().getMaximumValue());
+        mdt.setMillisOfDay(mdt.millisOfDay().getMaximumValue());
+        
+        return  mdt.getDayOfMonth() + "-" + mdt.getMonthOfYear() + "-" + mdt.getYear();  
+        
+    }
+    
+     public static String getBillDate() throws ParseException{
+        
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        
+        java.util.Date d = (java.util.Date)formatter.parse(ReportsHelper.billDateVal);
+        
+        DateTime dt = new DateTime(d);
+        
+        MutableDateTime mdt = new MutableDateTime(dt);
+        //mdt.addMonths(-1);
+        //mdt.setDayOfMonth(mdt.dayOfMonth().getMaximumValue());
+        //mdt.setMillisOfDay(mdt.millisOfDay().getMaximumValue());
+        
+        return  mdt.getDayOfMonth() + "-" + mdt.getMonthOfYear() + "-" + mdt.getYear();  
+        
+    }
+    
+    
+    private String getFormatedDate(String inpDate) throws ParseException{
+        
+        if(!isBlank(inpDate)){
+            SimpleDateFormat dt = new SimpleDateFormat("yyyyy-mm-dd"); 
+            java.util.Date date = dt.parse(inpDate); 
+            SimpleDateFormat dt1 = new SimpleDateFormat("dd-mm-yyyy");
+            return dt1.format(date);
+        }
+        
+        return "";
+    }
+    
+    public HashMap<String,String> generateInvoiceNumbers(Set<String> accNumbers) throws ParseException{
+        
+        HashMap<String,String> retMap = new HashMap<String,String>();
+        ArrayList<InvoiceNumber> invoiceList = rch.getInvoiceNumbers(accNumbers);
+        
+        for(InvoiceNumber in : invoiceList){
+            if(isValidInvoiceMonth(in.getGeneratedOn())){
+                retMap.put(in.getTier1().toString(), in.getInvoiceNumber());
+            }
+        }
+        
+        return retMap;
+        
+    }
+    
+    private Boolean isValidInvoiceMonth(java.util.Date invoiceGeneratedDate) throws ParseException{
+        
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");        
+        java.util.Date d = (java.util.Date)formatter.parse(ReportsHelper.billDateVal);
+        
+        DateTime dt = new DateTime(d);                  
+        DateTime dtInv = new DateTime(invoiceGeneratedDate);        
+               
+        if(dt.getMonthOfYear() == dtInv.getMonthOfYear() && dt.getYear() == dtInv.getYear()){
+            return true;
+        }
+        return false;
+    }
+    
+    public static String getCurrencyValue(Double val){
+        NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.UK);
+        return nf.format(val);
     }
 }
