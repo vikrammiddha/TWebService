@@ -167,7 +167,6 @@ public class ReportUtils {
     public HashMap<String, ArrayList<BillItem>> populateBillItemBeans(String query, QuerySFDC querySFDC) throws ResilientException {
 
         ArrayList<BillItem> retBIList = new ArrayList<BillItem>();
-        HashMap<String,BillItem> groupedBIMap = new HashMap<String,BillItem>();
         
         HashMap<String, ArrayList<BillItem>> retBIMap = new HashMap<String, ArrayList<BillItem>>();
         try {
@@ -176,35 +175,26 @@ public class ReportUtils {
             for (int i = 0; i < resultMap.length; i++) {
 
                 HashMap<String, Object> hm = resultMap[i];
-                BillItem biObj = new BillItem();
-                if(groupedBIMap.get((String) hm.get("ESPRESSO_BILL__ASSET__R.ESPRESSO_PC__OFFER__C")) == null){
-                    biObj.setAssetName((String) hm.get("ESPRESSO_BILL__ASSET__R.NAME"));
-                    biObj.setBillDate((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__BILL_DATE__C"));
-                    //biObj.setBillPeriod((String)hm.get("Espresso_Bill__Asset__R.Name"));
-                    biObj.setDateFrom(getFormatedDate((String) hm.get("ESPRESSO_BILL__DATE_FROM__C")));
-                    biObj.setDateTo(getFormatedDate((String) hm.get("ESPRESSO_BILL__DATE_TO__C")));
-                    biObj.setRetalGross((String) hm.get("ESPRESSO_BILL__GROSS_AMOUNT_1__C"));
-                    biObj.setAccountNumber((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.ESPRESSO_PC__ACCOUNT_NUMBER__C"));
-                    biObj.setAccountName((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.NAME"));
-                    biObj.setIdentifier((String) hm.get("ESPRESSO_BILL__ACCOUNT_SERVICE_LINE__R.ESPRESSO_PC__BILLING_IDENTIFIER__C"));
-                    biObj.setRequireServItemisation((((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.SUMMARY_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")) ? true : false);
-                    biObj.setRequireTelItemisation((((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.TEL_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")) ? true : false);
-                    biObj.setOfferName((String) hm.get("ESPRESSO_BILL__ASSET__R.ESPRESSO_PC__OFFER__R.NAME"));
-                    biObj.setOfferSFDCId((String) hm.get("ESPRESSO_BILL__ASSET_R.ESPRESSO_PC__OFFER_C"));
-                    groupedBIMap.put((String) hm.get("ESPRESSO_BILL__ASSET__R.ESPRESSO_PC__OFFER__C"),biObj);
-                    
-                }else{
-                    BillItem existingBIObj = groupedBIMap.get((String) hm.get("ESPRESSO_BILL__ASSET__R.ESPRESSO_PC__OFFER__C"));
-                    Double  newRetGrossAmount = Double.valueOf(existingBIObj.getRetalGross()) + Double.valueOf((String) hm.get("ESPRESSO_BILL__GROSS_AMOUNT_1__C"));
-                    existingBIObj.setRetalGross(String.valueOf(newRetGrossAmount));
-                    existingBIObj.setCount(existingBIObj.getCount()+1);
-                    groupedBIMap.put((String) hm.get("ESPRESSO_BILL__ASSET__R.ESPRESSO_PC__OFFER__C"),existingBIObj);
-                    
-                }
+                BillItem biObj = new BillItem();               
+                
+                biObj.setAssetName((String) hm.get("ESPRESSO_BILL__ASSET__R.NAME"));
+                biObj.setBillDate((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__BILL_DATE__C"));
+                //biObj.setBillPeriod((String)hm.get("Espresso_Bill__Asset__R.Name"));
+                biObj.setDateFrom(getFormatedDate((String) hm.get("ESPRESSO_BILL__DATE_FROM__C")));
+                biObj.setDateTo(getFormatedDate((String) hm.get("ESPRESSO_BILL__DATE_TO__C")));
+                biObj.setRetalGross((String) hm.get("ESPRESSO_BILL__GROSS_AMOUNT_1__C"));
+                biObj.setAccountNumber((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.ESPRESSO_PC__ACCOUNT_NUMBER__C"));
+                biObj.setAccountName((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.NAME"));
+                biObj.setIdentifier((String) hm.get("ESPRESSO_BILL__ACCOUNT_SERVICE_LINE__R.ESPRESSO_PC__BILLING_IDENTIFIER__C"));
+                biObj.setRequireServItemisation((((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.SUMMARY_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")) ? true : false);
+                biObj.setRequireTelItemisation((((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.TEL_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")) ? true : false);
+                biObj.setOfferName((String) hm.get("ESPRESSO_BILL__ASSET__R.ESPRESSO_PC__OFFER__R.NAME"));
+                biObj.setOfferSFDCId((String) hm.get("ESPRESSO_BILL__ASSET_R.ESPRESSO_PC__OFFER_C"));            
+                retBIList.add(biObj);
                 
                 //retBIList.add(groupedBIMap.values());
             }
-            for (BillItem billItem : groupedBIMap.values()) {
+            for (BillItem billItem : retBIList) {
                 if (retBIMap.containsKey(billItem.getAccountNumber() + "," + billItem.getRequireServItemisation() + "," + billItem.getRequireTelItemisation() + "," + billItem.getAccountName())) {
                     retBIMap.get(billItem.getAccountNumber() + "," + billItem.getRequireServItemisation() + "," + billItem.getRequireTelItemisation() + "," + billItem.getAccountName()).add(billItem);
                 } else {
@@ -257,8 +247,59 @@ public class ReportUtils {
 
         return retMap;
     }
+    
+    private HashMap<String, ArrayList<BillItemSummary>> getBillItemSummaryMap(ArrayList<BillItem> biList){
+        
+        HashMap<String,BillItemSummary> groupedBIMap = new HashMap<String,BillItemSummary>();
+        HashMap<String, ArrayList<BillItemSummary>> retBIMap = new HashMap<String, ArrayList<BillItemSummary>>();
+        
+        for(BillItem bi : biList){
+            
+            if(groupedBIMap.get(bi.getOfferSFDCId()) == null){                    
+                BillItemSummary biSummaryObj = new BillItemSummary();
+                biSummaryObj.setOfferName(bi.getOfferName());
+                biSummaryObj.setOfferSFDCId(bi.getOfferSFDCId());
+                biSummaryObj.setRetalGross(bi.getRetalGross());
+                biSummaryObj.setCount(1);
+                biSummaryObj.setBillItem(bi);
+                groupedBIMap.put(biSummaryObj.getOfferSFDCId(),biSummaryObj);
 
+        }else{
+                BillItemSummary existingBISummaryObj = groupedBIMap.get(bi.getOfferSFDCId());
+                Double  newRetGrossAmount = Double.valueOf(existingBISummaryObj.getRetalGross()) + Double.valueOf(bi.getRetalGross());
+                existingBISummaryObj.setRetalGross(String.valueOf(newRetGrossAmount));
+                existingBISummaryObj.setCount(existingBISummaryObj.getCount()+1);
+                groupedBIMap.put(bi.getOfferSFDCId(),existingBISummaryObj);
+
+            }
+            
+        }
+        
+        for (BillItemSummary billItemSummary : groupedBIMap.values()) {
+            if (retBIMap.containsKey(billItemSummary.getBillItem().getAccountNumber() + "," + billItemSummary.getBillItem().getRequireServItemisation() + "," + billItemSummary.getBillItem().getRequireTelItemisation() + "," + billItemSummary.getBillItem().getAccountName())) {
+                retBIMap.get(billItemSummary.getBillItem().getAccountNumber() + "," + billItemSummary.getBillItem().getRequireServItemisation() + "," + billItemSummary.getBillItem().getRequireTelItemisation() + "," + billItemSummary.getBillItem().getAccountName()).add(billItemSummary);
+            } else {
+                retBIMap.put(billItemSummary.getBillItem().getAccountNumber() + "," + billItemSummary.getBillItem().getRequireServItemisation() + "," + billItemSummary.getBillItem().getRequireTelItemisation() + "," + billItemSummary.getBillItem().getAccountName(), new ArrayList<BillItemSummary>());
+                retBIMap.get(billItemSummary.getBillItem().getAccountNumber() + "," + billItemSummary.getBillItem().getRequireServItemisation() + "," + billItemSummary.getBillItem().getRequireTelItemisation() + "," + billItemSummary.getBillItem().getAccountName()).add(billItemSummary);
+            }
+        }
+        
+        
+        return retBIMap;
+    }
+    
     public void buildItemisation(Set<String> bItemKeys, String billDate,HashMap<String, String> accountAuthorizedEmailMap, HashMap<String, ArrayList<BillItem>> biItemMap, String runId, HashMap<String,String> invoiceMap) throws Exception {
+        
+        HashMap<String, ArrayList<BillItemSummary>> biSummaryItemMap = new HashMap<String, ArrayList<BillItemSummary>>();
+        
+        ArrayList<BillItem> biList = new  ArrayList<BillItem>();
+        
+        for(ArrayList<BillItem> bil : biItemMap.values()){
+            biList.addAll(bil);
+        }
+        
+        biSummaryItemMap = getBillItemSummaryMap(biList);
+        
         for (String keySet : bItemKeys) {
             explodedValues = keySet.split(",");
             AccountNumber = explodedValues[IDX_ACCOUNT_NUMBER];
@@ -278,6 +319,7 @@ public class ReportUtils {
             servicePack.put(AccountNumber, callReport);
             itemisation.setItemisation(AccountNumber, AccountName, RequireTelephony, RequireService, rCdrPack.get(AccountNumber), servicePack.get(AccountNumber), biItemMap.get(keySet));
             itemisation.setEmailAddress(accountAuthorizedEmailMap.get(AccountNumber));
+            itemisation.setBiSummary(biSummaryItemMap.get(keySet));
             createPDF(itemisation, runId, invoiceNumber);
 
         }
@@ -352,7 +394,7 @@ public class ReportUtils {
         if(!isBlank(inpDate)){
             SimpleDateFormat dt = new SimpleDateFormat("yyyyy-mm-dd"); 
             java.util.Date date = dt.parse(inpDate); 
-            SimpleDateFormat dt1 = new SimpleDateFormat("dd-mm-yyyy");
+            SimpleDateFormat dt1 = new SimpleDateFormat("dd/mm/yyyy");
             return dt1.format(date);
         }
         
@@ -391,5 +433,26 @@ public class ReportUtils {
     public static String getCurrencyValue(Double val){
         NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.UK);
         return nf.format(val);
+    }
+    
+    public static String getDateFromString(String inputDate){
+               
+        try{
+            String dateStr = inputDate.substring(0,10);
+            String[] dateStrArr = dateStr.split("-");
+            return dateStrArr[2] + "/" + dateStrArr[1] + "/" + dateStrArr[0];
+        }catch(Exception e){
+            return inputDate;
+        }
+    }
+    
+     public static String getTimeFromString(String inputDate){
+        
+        try{
+            String dateStr = inputDate.substring(10,19);
+            return dateStr;
+        }catch(Exception e){
+            return inputDate;
+        }
     }
 }

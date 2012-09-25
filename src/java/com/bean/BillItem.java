@@ -28,33 +28,8 @@ public class BillItem {
     private Boolean requireServItemisation = null;
     private String offerName = null;
     private String offerSFDCId = null;
-    private Integer count = 1;
-
-    public Integer getCount() {
-        return count;
-    }
-
-    public void setCount(Integer count) {
-        this.count = count;
-    }
-    
-
-    public String getOfferName() {
-        return offerName;
-    }
-
-    public void setOfferName(String offerName) {
-        this.offerName = offerName;
-    }
-
-    public String getOfferSFDCId() {
-        return offerSFDCId;
-    }
-
-    public void setOfferSFDCId(String offerSFDCId) {
-        this.offerSFDCId = offerSFDCId;
-    }    
   
+     
     public String getBillPeriod() {
         return billPeriod;
     }
@@ -121,5 +96,21 @@ public class BillItem {
     public void setRequireServItemisation(Boolean requireServItemisation) {
         this.requireServItemisation = requireServItemisation;
     }
-	
+    
+    public String getOfferName() {
+        return offerName;
+    }
+
+    public void setOfferName(String offerName) {
+        this.offerName = offerName;
+    }
+    
+    public String getOfferSFDCId() {
+        return offerSFDCId;
+    }
+
+    public void setOfferSFDCId(String offerSFDCId) {
+        this.offerSFDCId = offerSFDCId;
+    }    
+    
 }

@@ -96,6 +96,7 @@ public class EWSConnection {
             EmailMessage msg = new EmailMessage(service);
             msg.setSubject(subject);
             msg.setBody(MessageBody.getMessageBodyFromText(emailBody));
+           
             if(appConfig.getErrorSuccessEmailAddress().indexOf(";") > -1){
                 String[] emailToAddresses = appConfig.getErrorSuccessEmailAddress().split(";");
                 for(String emailAdd : emailToAddresses){

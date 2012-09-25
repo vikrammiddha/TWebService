@@ -95,7 +95,7 @@ public class PDFCreator {
             cell8.setHorizontalAlignment(Element.ALIGN_TOP);
             cell8.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table8.addCell(cell8);
-            cell8 = new PdfPCell(new Paragraph("Date (And Tax Point):" + ReportUtils.getBillDate(), smallFont));
+            cell8 = new PdfPCell(new Paragraph("Date (And Tax Point):" + ReportUtils.getBillPeriod(), smallFont));
             cell8.setBorder(0);
             cell8.setHorizontalAlignment(Element.ALIGN_TOP);
             cell8.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -111,7 +111,7 @@ public class PDFCreator {
             cell8.setHorizontalAlignment(Element.ALIGN_TOP);
             cell8.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table8.addCell(cell8);
-            cell8 = new PdfPCell(new Paragraph("Billing Period (Ending): " + ReportUtils.getBillPeriod(), smallFont));
+            cell8 = new PdfPCell(new Paragraph("Billing Period (Ending):" + ReportUtils.getBillPeriod(), smallFont));
             cell8.setBorder(0);
             cell8.setHorizontalAlignment(Element.ALIGN_TOP);
             cell8.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -135,6 +135,8 @@ public class PDFCreator {
         table.setWidthPercentage(100f);
         table.setHorizontalAlignment(100);
         table.setSpacingBefore(5);
+        float[] relativeWidths = {50,0,0,0,0,25,25};
+        table.setWidths(relativeWidths);
         table.setHeaderRows(1);
         PdfPCell cell;
         cell = new PdfPCell(new Paragraph("Call Report", whiteFont));
@@ -161,7 +163,11 @@ public class PDFCreator {
             PdfPCell headerCell1 = new PdfPCell(new Paragraph(header, smallBold));
             headerCell1.setBorder(Rectangle.BOTTOM);
             headerCell1.setBorderWidth(1);
-            headerCell1.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
+            if(header.equals("Destination")){
+                headerCell1.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
+            }else{
+                headerCell1.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            }
             table.addCell(headerCell1);
             table.setSpacingAfter(10f);
         }
@@ -190,10 +196,10 @@ public class PDFCreator {
             cell.setBorder(0);
             //Sum up the total calls
             totalCalls += cR.getCount();
-            cell.setHorizontalAlignment((Element.ALIGN_JUSTIFIED));
+            cell.setHorizontalAlignment((Element.ALIGN_RIGHT));
             //cell.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
             table.addCell(cell);
-            cell = new PdfPCell(new Paragraph(ReportUtils.getCurrencyValue(Double.valueOf(twoDForm.format(Double.valueOf(cR.getRetailPrice())))), smallBoldFont));
+            cell = new PdfPCell(new Paragraph(ReportUtils.getCurrencyValue(Double.valueOf(twoDForm.format(Double.valueOf(cR.getRetailPrice()/100)))), smallBoldFont));
             //cell = new PdfPCell(new Paragraph(ReportUtils.getCurrencyValue(cR.getRetailPrice()), smallBoldFont));
             cell.setBorder(0);
             //Sum up the total value
@@ -204,7 +210,7 @@ public class PDFCreator {
         }
         document.add(Chunk.NEWLINE);
 
-        String[] headerStrings2 = new String[]{"Total", "", "", "", "", String.valueOf(totalCalls), ReportUtils.getCurrencyValue(Double.valueOf(twoDForm.format(totalCost)))};
+        String[] headerStrings2 = new String[]{"Total", "", "", "", "", String.valueOf(totalCalls), ReportUtils.getCurrencyValue(Double.valueOf(twoDForm.format(totalCost/100)))};
         costIndex = 0;
         for (String header : headerStrings2) {
             
@@ -232,10 +238,10 @@ public class PDFCreator {
         table1.setHorizontalAlignment(100);
         table1.setSpacingBefore(5);
         table1.setHeaderRows(1);
-        float[] relativeWidths = {15,0,35,20,20,0,10};
+        float[] relativeWidths = {45,0,15,15,15,0,10};
         table1.setWidths(relativeWidths);
         PdfPCell cell2;
-        cell2 = new PdfPCell(new Paragraph("Service Charges", whiteFont)); // 2nd section
+        cell2 = new PdfPCell(new Paragraph("Service Summary", whiteFont)); // 2nd section
         cell2.setRowspan(1);
         cell2.setColspan(7);
         cell2.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
@@ -249,7 +255,12 @@ public class PDFCreator {
         for (String header : headerStrings3) {
             PdfPCell headerCell3 = new PdfPCell(new Paragraph(header, smallBold));
             headerCell3.setBorder(Rectangle.BOTTOM);
-            headerCell3.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
+            if(header.equals("Cost") || header.equals("Count")){
+                headerCell3.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            }else{
+                headerCell3.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
+            }
+            
             headerCell3.setBorderWidth(1);
             table1.addCell(headerCell3);
             table1.setSpacingAfter(10f);
@@ -258,7 +269,7 @@ public class PDFCreator {
         
         document.add(Chunk.NEWLINE);
         totalCost = 0.0;
-        for (BillItem bItem : itemisation.getBillItems()) {
+        for (BillItemSummary bItem : itemisation.getBiSummary()) {
             cell2 = new PdfPCell(new Paragraph(bItem.getOfferName(), smallBoldFont));
             cell2.setBorder(0);
             
@@ -268,7 +279,7 @@ public class PDFCreator {
             cell2.setBorder(0);
             table1.addCell(cell2);
             cell2 = new PdfPCell(new Paragraph(bItem.getCount().toString(), smallBoldFont));
-            cell2.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
+            cell2.setHorizontalAlignment(Element.ALIGN_RIGHT);
             cell2.setBorder(0);
             table1.addCell(cell2);
             cell2 = new PdfPCell(new Paragraph("", smallFont));
@@ -291,14 +302,14 @@ public class PDFCreator {
 
         document.add(Chunk.NEWLINE);
 
-        String[] headerStrings4 = new String[]{"", "", "", "", "Total", "", ReportUtils.getCurrencyValue(Double.valueOf(twoDForm.format(totalCost)))};
+        String[] headerStrings4 = new String[]{"", "", "Total", "", "", "", ReportUtils.getCurrencyValue(Double.valueOf(twoDForm.format(totalCost)))};
         
         for (String header : headerStrings4) {
             PdfPCell headerCell4 = new PdfPCell(new Paragraph(header, smallBold));
 
             headerCell4.setBorder(Rectangle.TOP);
             headerCell4.setBorderWidth(1);
-            if(!header.equals("Total") && !(header.equals(""))){
+            if(!(header.equals(""))){
                 headerCell4.setHorizontalAlignment((Element.ALIGN_RIGHT));
             }else{
                 headerCell4.setHorizontalAlignment((Element.ALIGN_JUSTIFIED));
@@ -321,7 +332,7 @@ public class PDFCreator {
         float[] relativeWidths = {15,0,40,18,17,0,10};
         table1.setWidths(relativeWidths);
         PdfPCell cell2;
-        cell2 = new PdfPCell(new Paragraph("Service Summary", whiteFont)); // 2nd section
+        cell2 = new PdfPCell(new Paragraph("Service Charges", whiteFont)); // 2nd section
         cell2.setRowspan(1);
         cell2.setColspan(7);
         cell2.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
@@ -335,7 +346,12 @@ public class PDFCreator {
         for (String header : headerStrings3) {
             PdfPCell headerCell3 = new PdfPCell(new Paragraph(header, smallBold));
             headerCell3.setBorder(Rectangle.BOTTOM);
-            headerCell3.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
+            if(header.equals("Cost")){
+                headerCell3.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            }else{
+                headerCell3.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
+            }
+            
             headerCell3.setBorderWidth(1);
             table1.addCell(headerCell3);
             table1.setSpacingAfter(10f);
@@ -403,6 +419,8 @@ public class PDFCreator {
         table2.setHorizontalAlignment(100);
         table2.setSpacingBefore(5);
         table2.setHeaderRows(1);
+        float[] relativeWidths = {15,15,15,10,25,10,10};
+        table2.setWidths(relativeWidths);
         PdfPCell cell3;     // Itemisation Table
         cell3 = new PdfPCell(new Paragraph("Call Itemisation", whiteFont)); // 2nd section
 
@@ -415,10 +433,16 @@ public class PDFCreator {
         table2.addCell(cell3);
         table2.setSpacingBefore(10);
 
-        String[] headerStrings = new String[]{"UserID", "CallDate", "CallTime", "Duration", "Telephone Number", "Time Band", "Cost"};
+        String[] headerStrings = new String[]{"User ID", "Call Date", "Call Time", "Duration", "Telephone Number", "Time Band", "Cost"};
        
         for (String header : headerStrings) {
             PdfPCell headerCell = new PdfPCell(new Paragraph(header, smallBold));
+            if(header.equals("Telephone Number") ){
+                headerCell.setHorizontalAlignment((Element.ALIGN_JUSTIFIED));
+            }
+            if(header.equals("Cost") || header.equals("Duration")|| header.equals("Call Date") || header.equals("Call Time")){
+              headerCell.setHorizontalAlignment((Element.ALIGN_RIGHT));
+            }
             headerCell.setBorder(Rectangle.BOTTOM);
             headerCell.setBorderWidth(1);
             table2.addCell(headerCell);
@@ -439,24 +463,27 @@ public class PDFCreator {
             //cell = new PdfPCell(new Paragraph("UserID"));
             //cell.setBorder(0);
             //table.addCell(cell);
-            cell3 = new PdfPCell(new Paragraph(rCdr.getStartTimestamp().toString().substring(0, 9), smallFont));
+            cell3 = new PdfPCell(new Paragraph(ReportUtils.getDateFromString(rCdr.getStartTimestamp().toString()), smallFont));
             cell3.setBorder(0);
+            cell3.setHorizontalAlignment((Element.ALIGN_RIGHT));
             table2.addCell(cell3);
-            cell3 = new PdfPCell(new Paragraph(rCdr.getStartTimestamp().toString().substring(10, rCdr.getStartTimestamp().toString().length() - 1), smallFont));
+            cell3 = new PdfPCell(new Paragraph(ReportUtils.getTimeFromString(rCdr.getStartTimestamp().toString()), smallFont));
             cell3.setBorder(0);
+            cell3.setHorizontalAlignment((Element.ALIGN_RIGHT));
             table2.addCell(cell3);
-            cell3 = new PdfPCell(new Paragraph(String.valueOf(rCdr.getDuration()/60), smallFont));
+            cell3 = new PdfPCell(new Paragraph(Double.valueOf(twoDForm.format(Double.valueOf(rCdr.getDuration()/60))).toString(), smallFont));
             cell3.setBorder(0);
             cell3.setHorizontalAlignment((Element.ALIGN_RIGHT));
             table2.addCell(cell3);
             cell3 = new PdfPCell(new Paragraph(rCdr.getDestination(), smallFont));
             cell3.setBorder(0);
+            cell3.setHorizontalAlignment((Element.ALIGN_JUSTIFIED));
             table2.addCell(cell3);
             cell3 = new PdfPCell(new Paragraph(rCdr.getTimeBand(), smallFont));
             cell3.setBorder(0);
             table2.addCell(cell3);
-            cell3 = new PdfPCell(new Paragraph(ReportUtils.getCurrencyValue(rCdr.getRetailPrice()), smallFont));
-            totalCost += rCdr.getRetailPrice();
+            cell3 = new PdfPCell(new Paragraph(ReportUtils.getCurrencyValue(Double.valueOf(twoDForm.format(rCdr.getRetailPrice()/100))), smallFont));
+            totalCost += rCdr.getRetailPrice()/100;
             cell3.setBorder(0);
             cell3.setHorizontalAlignment((Element.ALIGN_RIGHT));
             table2.addCell(cell3);
@@ -483,7 +510,7 @@ public class PDFCreator {
     }
 
     void createPdf(Itemisation itemisation, String runId, String invoiceNumber) throws Exception {
-        Document document = new Document(PageSize.A4, 10, 10, 10, 10);
+        Document document = new Document(PageSize.A4, 10, 10, 10, 30);
         LOGGER.info("Creating PDF for account :" + itemisation.getAccountNumber() + "at : " + config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf");
         PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf"));
         LOGGER.info("Created PDF for account :" + itemisation.getAccountNumber() + "at : " + config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf");
@@ -543,16 +570,16 @@ public class PDFCreator {
         public void onEndPage(PdfWriter writer, Document document) {
             PdfPTable table = new PdfPTable(3);
             try {
-                table.setWidths(new int[]{24, 24, 2});
+                table.setWidths(new int[]{10, 10, 2});
                 table.setTotalWidth(600);
                 table.setLockedWidth(true);
                 table.getDefaultCell().setFixedHeight(20);
-                table.getDefaultCell().setBorder(Rectangle.TOP);
+                table.getDefaultCell().setBorder(0);
                 table.addCell("");
                 table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_RIGHT);
                 table.addCell(String.format("Page %d of", writer.getPageNumber()));
                 PdfPCell cell = new PdfPCell(Image.getInstance(total));
-                cell.setBorder(Rectangle.TOP);
+                cell.setBorder(0);
                 cell.setPaddingTop(2);
                 table.addCell(cell);
                 //table.writeSelectedRows(0, -1, 34, 803, writer.getDirectContent());

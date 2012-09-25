@@ -88,7 +88,7 @@ public class ReportsHelper {
     public static void main(String[] s) throws Exception {
 
         ReportsHelper mObj = new ReportsHelper();
-        mObj.generateReports("TH14225500-2", "", "", "", "2012-04-26");
+        mObj.generateReports("TH14225500-2", "", "", "", "2012-06-26");
 
     }
 
@@ -175,14 +175,16 @@ public class ReportsHelper {
             utils.closeConnections();
         } catch (Exception e) {
             LOGGER.error("Exception occured while preparing data for Bill Item. Cause : " + e.getCause().getMessage());
-            emailBody.append("Reports could not be generated for run Id :").append(runId).append(". Cause :").append(e.getCause().getMessage()).append("\n");
+            emailBody.append("Reports could not be generated for run Id :").append(runId).append(". Cause :").append(e.getCause().getMessage()).append(System.getProperty("line.separator"));
+            emailBody.append("Inputs for generating the reports : ").append("</br>").append(" Account Number :").append(accountNumber).append("</br>").append(" Bill Run Id :").append(billRunId).append("</br>").append("Bill Id :").append(billId).append("\n");
             ewsObj.sendEmail(appConfig.getErrorSubject() + ". RunId :" + runId, emailBody.toString());
             System.gc();
             return -1;
         }
 
         //LOGGER.info("returning the list" + biItemList);
-        emailBody.append("Successfully generated the Reports for Run Id :").append(runId).append("\n");
+        emailBody.append("Successfully generated the Reports for Run Id :").append(runId).append("</br>");
+        emailBody.append("Inputs for generating the reports : ").append("</br>").append(" Account Number :").append(accountNumber).append("</br>").append(" Bill Run Id :").append(billRunId).append("</br>").append("Bill Id :").append(billId).append("\n");
         ewsObj.sendEmail(appConfig.getSuccessSubject() + ". RunId :" + runId, emailBody.toString());
         System.gc();
         return biItemMap.size();

@@ -4,6 +4,7 @@
  */
 package com.bean;
 
+import com.src.BillItemSummary;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -21,6 +22,8 @@ public class Itemisation {
     private ArrayList<RatedCdr> rCdrs;
     private ArrayList<BillItem> bItems;
     private ArrayList<CallReport> summary;
+    private ArrayList<BillItemSummary> biSummary;
+
 
     
     public Itemisation() {
@@ -37,6 +40,16 @@ public class Itemisation {
         this.summary = summary;
     }
 
+        
+
+    public ArrayList<BillItemSummary> getBiSummary() {
+        return biSummary;
+    }
+
+    public void setBiSummary(ArrayList<BillItemSummary> biSummary) {
+        this.biSummary = biSummary;
+    }   
+    
     public ArrayList<RatedCdr> getRatedCdrs() {
         return this.rCdrs;
     }

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
@@ -46,6 +47,7 @@ public class RatedCdrHelper {
         Criteria crit = session.createCriteria(RatedCdr.class);
         crit.add(Restrictions.eq("msn", msn));
         crit.add(Restrictions.between("startTimestamp", getMinimum(dt), getMaximum(dt)));
+        crit.addOrder(Order.asc("startTimestamp"));
         return (ArrayList<RatedCdr>) crit.list();
     }
     
@@ -55,6 +57,7 @@ public class RatedCdrHelper {
         Criteria crit = session.createCriteria(RatedCdr.class);
         crit.add(Restrictions.eq("msn", msn));
         crit.add(Restrictions.between("startTimestamp", getMinimum(dt), getMaximum(dt)));
+        crit.addOrder(Order.asc("zoneDestination"));
         crit.setProjection(Projections.projectionList().add(Projections.groupProperty("zoneDestination")).add(Projections.sum("retailPrice")).add(Projections.count("id")));
         return (ArrayList<Object>) crit.list();
     }
