@@ -142,7 +142,7 @@ public class ReportsHelper {
                 }
             }
             
-            query += " AND Espresso_Bill__Total_Gross_Amount__c > 0";
+            query += " AND Espresso_Bill__Total_Gross_Amount__c != 0";
             //query += " AND Espresso_Bill__Total_Gross_Amount__c > 0 AND Espresso_Bill__Type__c != 'Event'";
             //LOGGER.info("Query prepared : " + query);
 

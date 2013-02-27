@@ -146,12 +146,12 @@ public class PDFCreator {
         Map<String,Double> destCostMap = new HashMap<String,Double>();
         Map<String,Integer> destCountMap = new HashMap<String,Integer>();
         Set<String> checkForDuplicateCDRs= new HashSet<String>();
-        String rCdrStr = "";
+        //String rCdrStr = "";
         
         for(RatedCdr rCdr : itemisation.getRatedCdrs()){
-            rCdrStr = rCdr.getStartTimestamp()+rCdr.getUser() + rCdr.getDestination();
-            if(checkForDuplicateCDRs.contains(rCdrStr))
-                    continue;
+            //rCdrStr = rCdr.getStartTimestamp()+rCdr.getUser() + rCdr.getDestination();
+            //if(checkForDuplicateCDRs.contains(rCdrStr))
+                    //continue;
             
             if(destCostMap.get(rCdr.getZoneDestination()) != null){
                 Double cost = destCostMap.get(rCdr.getZoneDestination()) + rCdr.getRetailPrice();
@@ -163,7 +163,7 @@ public class PDFCreator {
                 destCountMap.put(rCdr.getZoneDestination(), 1);
             }
             
-            checkForDuplicateCDRs.add(rCdrStr);
+            //checkForDuplicateCDRs.add(rCdrStr);
         }
         cell = new PdfPCell(new Paragraph("Call Report", whiteFont));
         cell.setColspan(1);
@@ -494,9 +494,9 @@ public class PDFCreator {
         
         for (RatedCdr rCdr : itemisation.getRatedCdrs()) {
             //PdfPCell cell = new PdfPCell(new Paragraph(String.valueOf(row)));
-            rCdrStr = rCdr.getStartTimestamp()+rCdr.getUser() + rCdr.getDestination();
-            if(checkForDuplicateCDRs.contains(rCdrStr))
-                    continue;
+           // rCdrStr = rCdr.getStartTimestamp()+rCdr.getUser() + rCdr.getDestination();
+            //if(checkForDuplicateCDRs.contains(rCdrStr))
+                    //continue;
             
             cell3 = new PdfPCell(new Paragraph(rCdr.getUser(), smallFont));
             //cell.setHorizontalAlignment(100);
@@ -529,7 +529,7 @@ public class PDFCreator {
             cell3.setBorder(0);
             cell3.setHorizontalAlignment((Element.ALIGN_RIGHT));
             table2.addCell(cell3);
-            checkForDuplicateCDRs.add(rCdrStr);
+            //checkForDuplicateCDRs.add(rCdrStr);
             
         }
 

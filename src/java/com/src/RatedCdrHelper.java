@@ -51,7 +51,7 @@ public class RatedCdrHelper {
         Set<String> aggIds = new HashSet<String>();
         if(biList != null && biList.size() > 0){
             for(BillItem bi : biList){
-                //LOGGER.info("Aggregation Ids -  : " + bi.getAggregationId());
+                LOGGER.info("Aggregation Ids -  : " + bi.getAggregationId());
                 aggIds.add(bi.getAggregationId());
             }
         }
