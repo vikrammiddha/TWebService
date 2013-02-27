@@ -141,7 +141,9 @@ public class ReportsHelper {
                     LOGGER.info("Queried Latest Bill id from SFDC. Bill ID : " + latestBillId);
                 }
             }
-
+            
+            query += " AND Espresso_Bill__Total_Gross_Amount__c > 0";
+            //query += " AND Espresso_Bill__Total_Gross_Amount__c > 0 AND Espresso_Bill__Type__c != 'Event'";
             //LOGGER.info("Query prepared : " + query);
 
             //query += " limit 1";
@@ -151,28 +153,32 @@ public class ReportsHelper {
 
             LOGGER.info("Total number Accounts returned: " + biItemMap.size());
             
-            Set<String> bItemKeys = biItemMap.keySet();
+            if(biItemMap.size() > 0){
+                Set<String> bItemKeys = biItemMap.keySet();
             
-            accountNumbers = utils.getAccountNumbers(bItemKeys);
+                accountNumbers = utils.getAccountNumbers(bItemKeys);
+
+                // This is the place where Nimil's code will start with bitemList as Input;
+
+                accountAuthorizedEmailMap = utils.getAccountAuthorizedEmailMap(accountNumbers, querySfdc);
+
+                /*Fetch the Invoice numbes from another database based on the account numbers.*/
+
+                HashMap<String,String> accountNumInvoiceMap = new HashMap<String,String>();
+
+                accountNumInvoiceMap = utils.generateInvoiceNumbers(accountNumbers);
+
+                LOGGER.info("Fetched Invoice Numbers : " + accountNumInvoiceMap );
+
+                /*Loop through each bill and create pdf. 
+                 */
+                utils.buildItemisation(bItemKeys, billDate, accountAuthorizedEmailMap, biItemMap,runId,accountNumInvoiceMap);
+
+
+                utils.closeConnections();
+            }
             
-            // This is the place where Nimil's code will start with bitemList as Input;
             
-            accountAuthorizedEmailMap = utils.getAccountAuthorizedEmailMap(accountNumbers, querySfdc);
-            
-            /*Fetch the Invoice numbes from another database based on the account numbers.*/
-            
-            HashMap<String,String> accountNumInvoiceMap = new HashMap<String,String>();
-            
-            accountNumInvoiceMap = utils.generateInvoiceNumbers(accountNumbers);
-            
-            LOGGER.info("Fetched Invoice Numbers : " + accountNumInvoiceMap );
-            
-            /*Loop through each bill and create pdf. 
-             */
-            utils.buildItemisation(bItemKeys, billDate, accountAuthorizedEmailMap, biItemMap,runId,accountNumInvoiceMap);
-            
-            
-            utils.closeConnections();
         } catch (Exception e) {
             LOGGER.error("Exception occured while preparing data for Bill Item. Cause : " + e.getCause().getMessage());
             emailBody.append("Reports could not be generated for run Id :").append(runId).append(". Cause :").append(e.getCause().getMessage()).append(System.getProperty("line.separator"));

@@ -31,6 +31,10 @@ import com.itextpdf.text.pdf.PdfTemplate;
 import ewsconnect.EWSConnection;
 import java.net.MalformedURLException;
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import org.apache.log4j.Logger;
 
 public class PDFCreator {
@@ -139,6 +143,28 @@ public class PDFCreator {
         table.setWidths(relativeWidths);
         table.setHeaderRows(1);
         PdfPCell cell;
+        Map<String,Double> destCostMap = new HashMap<String,Double>();
+        Map<String,Integer> destCountMap = new HashMap<String,Integer>();
+        Set<String> checkForDuplicateCDRs= new HashSet<String>();
+        String rCdrStr = "";
+        
+        for(RatedCdr rCdr : itemisation.getRatedCdrs()){
+            rCdrStr = rCdr.getStartTimestamp()+rCdr.getUser() + rCdr.getDestination();
+            if(checkForDuplicateCDRs.contains(rCdrStr))
+                    continue;
+            
+            if(destCostMap.get(rCdr.getZoneDestination()) != null){
+                Double cost = destCostMap.get(rCdr.getZoneDestination()) + rCdr.getRetailPrice();
+                Integer count = destCountMap.get(rCdr.getZoneDestination())  + 1;
+                destCostMap.put(rCdr.getZoneDestination(), cost);
+                destCountMap.put(rCdr.getZoneDestination(), count);
+            }else{
+                destCostMap.put(rCdr.getZoneDestination(), rCdr.getRetailPrice());
+                destCountMap.put(rCdr.getZoneDestination(), 1);
+            }
+            
+            checkForDuplicateCDRs.add(rCdrStr);
+        }
         cell = new PdfPCell(new Paragraph("Call Report", whiteFont));
         cell.setColspan(1);
         cell.setGrayFill(0.5f);
@@ -175,8 +201,8 @@ public class PDFCreator {
         document.add(Chunk.NEWLINE);
         totalCost = 0.0;
         totalCalls = 0;
-        for (CallReport cR : itemisation.getSummary()) {
-            cell = new PdfPCell(new Paragraph(cR.getZoneDestination(), smallBoldFont));
+        for (String s : destCostMap.keySet()) {
+            cell = new PdfPCell(new Paragraph(s, smallBoldFont));
             cell.setBorder(0);
             cell.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
             table.addCell(cell);
@@ -192,18 +218,18 @@ public class PDFCreator {
             cell = new PdfPCell(new Paragraph("", smallFont));
             cell.setBorder(0);
             table.addCell(cell);
-            cell = new PdfPCell(new Paragraph(String.valueOf(cR.getCount()), smallBoldFont));
+            cell = new PdfPCell(new Paragraph(String.valueOf(destCountMap.get(s)), smallBoldFont));
             cell.setBorder(0);
             //Sum up the total calls
-            totalCalls += cR.getCount();
+            totalCalls += destCountMap.get(s);
             cell.setHorizontalAlignment((Element.ALIGN_RIGHT));
             //cell.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
             table.addCell(cell);
-            cell = new PdfPCell(new Paragraph(ReportUtils.getCurrencyValue(Double.valueOf(twoDForm.format(Double.valueOf(cR.getRetailPrice()/100)))), smallBoldFont));
+            cell = new PdfPCell(new Paragraph(ReportUtils.getCurrencyValue(Double.valueOf(twoDForm.format(Double.valueOf(destCostMap.get(s)/100)))), smallBoldFont));
             //cell = new PdfPCell(new Paragraph(ReportUtils.getCurrencyValue(cR.getRetailPrice()), smallBoldFont));
             cell.setBorder(0);
             //Sum up the total value
-            totalCost += cR.getRetailPrice();
+            totalCost += destCostMap.get(s);
             cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table.addCell(cell);
             
@@ -250,7 +276,7 @@ public class PDFCreator {
         cell2.setBorder(0);
         table1.addCell(cell2);
         table1.setSpacingBefore(10);
-
+        LOGGER.info("Starting Table 2 header");
         String[] headerStrings3 = new String[]{"Product", "", "Count", "", "", "", "Cost"};
         for (String header : headerStrings3) {
             PdfPCell headerCell3 = new PdfPCell(new Paragraph(header, smallBold));
@@ -266,13 +292,16 @@ public class PDFCreator {
             table1.setSpacingAfter(10f);
 
         }
-        
+        LOGGER.info("Starting Table 2 body");
         document.add(Chunk.NEWLINE);
         totalCost = 0.0;
+        LOGGER.info("itemisation : " + itemisation);
+        LOGGER.info("itemisation.getBiSummary() : " + itemisation.getBiSummary());
         for (BillItemSummary bItem : itemisation.getBiSummary()) {
+            LOGGER.info("bItem : " + bItem);
             cell2 = new PdfPCell(new Paragraph(bItem.getOfferName(), smallBoldFont));
             cell2.setBorder(0);
-            
+            LOGGER.info("Set Offer Name");
             //cell2.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
             table1.addCell(cell2);
             cell2 = new PdfPCell(new Paragraph("", smallFont));
@@ -293,7 +322,9 @@ public class PDFCreator {
             table1.addCell(cell2);
             
             cell2 = new PdfPCell(new Paragraph(ReportUtils.getCurrencyValue(Double.valueOf(twoDForm.format(Double.valueOf(bItem.getRetalGross())))), smallBoldFont));
+            LOGGER.info("Set Retail Gross");
             totalCost += Double.valueOf(bItem.getRetalGross());
+            LOGGER.info("Set Total Cost");
             cell2.setBorder(0);
             cell2.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table1.addCell(cell2);
@@ -301,7 +332,7 @@ public class PDFCreator {
         }
 
         document.add(Chunk.NEWLINE);
-
+        LOGGER.info("setting header4");
         String[] headerStrings4 = new String[]{"", "", "Total", "", "", "", ReportUtils.getCurrencyValue(Double.valueOf(twoDForm.format(totalCost)))};
         
         for (String header : headerStrings4) {
@@ -318,6 +349,7 @@ public class PDFCreator {
             table1.setSpacingAfter(10f);
 
         }
+        LOGGER.info("Compelted");
         document.add(table1);
         document.add(Chunk.NEWLINE);
     }
@@ -361,6 +393,9 @@ public class PDFCreator {
         document.add(Chunk.NEWLINE);
         totalCost = 0.0;
         for (BillItem bItem : itemisation.getBillItems()) {
+            LOGGER.info("Bill Item Type -  : " + bItem.getBillType().toUpperCase().trim());
+            if(bItem.getBillType() != null && bItem.getBillType().toUpperCase().trim().equals("EVENT"))
+                continue;
             cell2 = new PdfPCell(new Paragraph(bItem.getIdentifier(), smallBoldFont));
             cell2.setBorder(0);
             
@@ -454,8 +489,15 @@ public class PDFCreator {
         //ResultSet r = s.executeQuery(" SELECT UserID,CallDate,CallTime,Duration,Telephone Number,Time Band,Cost FROM LARGE_TABLE);
         //while(r.next())
         totalCost = 0.0;
+        Set<String> checkForDuplicateCDRs= new HashSet<String>();
+        String rCdrStr = "";
+        
         for (RatedCdr rCdr : itemisation.getRatedCdrs()) {
             //PdfPCell cell = new PdfPCell(new Paragraph(String.valueOf(row)));
+            rCdrStr = rCdr.getStartTimestamp()+rCdr.getUser() + rCdr.getDestination();
+            if(checkForDuplicateCDRs.contains(rCdrStr))
+                    continue;
+            
             cell3 = new PdfPCell(new Paragraph(rCdr.getUser(), smallFont));
             //cell.setHorizontalAlignment(100);
             cell3.setBorder(0);
@@ -487,6 +529,7 @@ public class PDFCreator {
             cell3.setBorder(0);
             cell3.setHorizontalAlignment((Element.ALIGN_RIGHT));
             table2.addCell(cell3);
+            checkForDuplicateCDRs.add(rCdrStr);
             
         }
 
@@ -512,7 +555,7 @@ public class PDFCreator {
     void createPdf(Itemisation itemisation, String runId, String invoiceNumber) throws Exception {
         Document document = new Document(PageSize.A4, 10, 10, 10, 30);
         LOGGER.info("Creating PDF for account :" + itemisation.getAccountNumber() + "at : " + config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf");
-        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf"));
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "-" + itemisation.getAccountName().replaceAll(" ", "_") + "_" + runId + ".pdf"));
         LOGGER.info("Created PDF for account :" + itemisation.getAccountNumber() + "at : " + config.getReportsDirectory() + "/" + itemisation.getAccountNumber() + "_" + runId + ".pdf");
         writer.setBoxSize("art", new Rectangle(10, 10, 559, 788));
         HeaderFooter event = new HeaderFooter();
@@ -524,12 +567,16 @@ public class PDFCreator {
         if (itemisation.getRequireService()) {
             createTable1(document, itemisation);
         }
+        LOGGER.info("Table1 Created");
         createTable4(document, itemisation);
+        LOGGER.info("Table4 Created");
         createTable2(document, itemisation);
+        LOGGER.info("Table2 Created");
         document.add(Chunk.NEXTPAGE);
         if (itemisation.getRequireTelephony()) {
             createTable3(document, itemisation);
         }
+        LOGGER.info("Table3 Created");
         document.close();
 
         this.valid = true;

@@ -4,12 +4,15 @@
  */
 package com.src;
 
+import com.bean.BillItem;
 import com.bean.RatedCdr;
 import com.bean.InvoiceNumber;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
+import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
@@ -18,6 +21,8 @@ import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 import org.joda.time.MutableDateTime;
 
+
+        
 /**
  *
  * @author Nimil
@@ -26,6 +31,7 @@ public class RatedCdrHelper {
 
     private Session session = null;
     private Session sessionInvoice = null;
+    private static Logger LOGGER = Logger.getLogger(RatedCdrHelper.class);
 
     public RatedCdrHelper() {
         this.session = HibernateUtil.getSessionFactory(false).getCurrentSession();
@@ -41,17 +47,32 @@ public class RatedCdrHelper {
         return (ArrayList<InvoiceNumber>) crit.list();
     }
     
-    public ArrayList<RatedCdr> getEvents(String msn, Date eventMonth) {
+    public ArrayList<RatedCdr> getEvents(String msn, Date eventMonth, ArrayList<BillItem> biList) {
+        Set<String> aggIds = new HashSet<String>();
+        if(biList != null && biList.size() > 0){
+            for(BillItem bi : biList){
+                //LOGGER.info("Aggregation Ids -  : " + bi.getAggregationId());
+                aggIds.add(bi.getAggregationId());
+            }
+        }
+        
         DateTime dt = new DateTime(eventMonth);
         org.hibernate.Transaction tx = session.beginTransaction();
         Criteria crit = session.createCriteria(RatedCdr.class);
-        crit.add(Restrictions.eq("msn", msn));
+        //crit.add(Restrictions.eq("msn", msn));
+        if(aggIds.size() > 0){
+            crit.add(Restrictions.in("aggregationId", aggIds));
+        }else{
+            crit.add(Restrictions.eq("msn", msn));
+        }
         crit.add(Restrictions.between("startTimestamp", getMinimum(dt), getMaximum(dt)));
         crit.addOrder(Order.asc("startTimestamp"));
         return (ArrayList<RatedCdr>) crit.list();
     }
     
     public ArrayList<Object> getCallReport(String msn, Date eventMonth){
+        return new ArrayList<Object>();
+        /*
         DateTime dt = new DateTime(eventMonth);
         org.hibernate.Transaction tx = session.beginTransaction();
         Criteria crit = session.createCriteria(RatedCdr.class);
@@ -60,12 +81,13 @@ public class RatedCdrHelper {
         crit.addOrder(Order.asc("zoneDestination"));
         crit.setProjection(Projections.projectionList().add(Projections.groupProperty("zoneDestination")).add(Projections.sum("retailPrice")).add(Projections.count("id")));
         return (ArrayList<Object>) crit.list();
+        * */
     }
 
     private Date getMinimum(DateTime dateTime) {
         MutableDateTime mdt = new MutableDateTime(dateTime);
-        mdt.addMonths(-1);
-        mdt.setDayOfMonth(1);
+        mdt.addMonths(-2);
+        mdt.setDayOfMonth(mdt.dayOfMonth().getMaximumValue() - 3);
         mdt.setMillisOfDay(0);
         return (Date) mdt.toDate();
     }

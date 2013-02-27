@@ -28,6 +28,33 @@ public class BillItem {
     private Boolean requireServItemisation = null;
     private String offerName = null;
     private String offerSFDCId = null;
+    private String billId = "";
+    private String aggregationId = "";
+    private String billType = "";
+
+    public String getBillType() {
+        return billType;
+    }
+
+    public void setBillType(String billType) {
+        this.billType = billType;
+    }
+
+    public String getAggregationId() {
+        return aggregationId;
+    }
+
+    public void setAggregationId(String aggregationId) {
+        this.aggregationId = aggregationId;
+    }
+
+    public String getBillId() {
+        return billId;
+    }
+
+    public void setBillId(String billId) {
+        this.billId = billId;
+    }
   
      
     public String getBillPeriod() {

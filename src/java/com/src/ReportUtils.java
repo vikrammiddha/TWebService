@@ -176,7 +176,7 @@ public class ReportUtils {
 
                 HashMap<String, Object> hm = resultMap[i];
                 BillItem biObj = new BillItem();               
-                
+                biObj.setBillId((String) hm.get("ESPRESSO_BILL__BILL__C"));
                 biObj.setAssetName((String) hm.get("ESPRESSO_BILL__ASSET__R.NAME"));
                 biObj.setBillDate((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__BILL_DATE__C"));
                 //biObj.setBillPeriod((String)hm.get("Espresso_Bill__Asset__R.Name"));
@@ -189,7 +189,10 @@ public class ReportUtils {
                 biObj.setRequireServItemisation((((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.SUMMARY_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")) ? true : false);
                 biObj.setRequireTelItemisation((((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.TEL_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")) ? true : false);
                 biObj.setOfferName((String) hm.get("ESPRESSO_BILL__ASSET__R.ESPRESSO_PC__OFFER__R.NAME"));
-                biObj.setOfferSFDCId((String) hm.get("ESPRESSO_BILL__ASSET_R.ESPRESSO_PC__OFFER_C"));            
+                biObj.setOfferSFDCId((String) hm.get("ESPRESSO_BILL__ASSET_R.ESPRESSO_PC__OFFER_C"));   
+                biObj.setAggregationId((String) hm.get("ESPRESSO_BILL__AGGREGATED_DATA__R.ESPRESSO_BILL__AGGREGATE_BY_VALUE__C"));
+                biObj.setBillType((String) hm.get("ESPRESSO_BILL__TYPE__C"));
+                
                 retBIList.add(biObj);
                 
                 //retBIList.add(groupedBIMap.values());
@@ -254,25 +257,27 @@ public class ReportUtils {
         HashMap<String, ArrayList<BillItemSummary>> retBIMap = new HashMap<String, ArrayList<BillItemSummary>>();
         
         for(BillItem bi : biList){
-            
-            if(groupedBIMap.get(bi.getOfferSFDCId()) == null){                    
+            if(bi.getBillType() != null && bi.getBillType().toUpperCase().trim().equals("EVENT"))
+                continue;
+            if(groupedBIMap.get(bi.getBillId() + bi.getOfferName()) == null){                    
                 BillItemSummary biSummaryObj = new BillItemSummary();
                 biSummaryObj.setOfferName(bi.getOfferName());
                 biSummaryObj.setOfferSFDCId(bi.getOfferSFDCId());
                 biSummaryObj.setRetalGross(bi.getRetalGross());
                 biSummaryObj.setCount(1);
                 biSummaryObj.setBillItem(bi);
-                groupedBIMap.put(biSummaryObj.getOfferSFDCId(),biSummaryObj);
+                groupedBIMap.put(bi.getBillId()+ bi.getOfferName(),biSummaryObj);
 
-        }else{
-                BillItemSummary existingBISummaryObj = groupedBIMap.get(bi.getOfferSFDCId());
+            }else{
+                BillItemSummary existingBISummaryObj = groupedBIMap.get(bi.getBillId()+ bi.getOfferName());
                 Double  newRetGrossAmount = Double.valueOf(existingBISummaryObj.getRetalGross()) + Double.valueOf(bi.getRetalGross());
                 existingBISummaryObj.setRetalGross(String.valueOf(newRetGrossAmount));
                 existingBISummaryObj.setCount(existingBISummaryObj.getCount()+1);
-                groupedBIMap.put(bi.getOfferSFDCId(),existingBISummaryObj);
+                groupedBIMap.put(bi.getBillId()+ bi.getOfferName(),existingBISummaryObj);
 
             }
-            
+            LOGGER.info("BillItemSummary - keyset : " + groupedBIMap.keySet());
+            LOGGER.info("BillItemSummary - values : " + groupedBIMap.values());
         }
         
         for (BillItemSummary billItemSummary : groupedBIMap.values()) {
@@ -301,13 +306,15 @@ public class ReportUtils {
         biSummaryItemMap = getBillItemSummaryMap(biList);
         
         for (String keySet : bItemKeys) {
+            
             explodedValues = keySet.split(",");
+            LOGGER.info("Processing Account : " + explodedValues[IDX_ACCOUNT_NUMBER]);
             AccountNumber = explodedValues[IDX_ACCOUNT_NUMBER];
             RequireTelephony = explodedValues[IDX_REQUIRE_TEL];
             RequireService = explodedValues[IDX_REQUIRE_SERV];
             AccountName = explodedValues[IDX_ACCOUNT_NAME];
             invoiceNumber = invoiceMap.get(AccountNumber);
-            ratedCdrs = rch.getEvents(AccountNumber, Date.valueOf(billDate));
+            ratedCdrs = rch.getEvents(AccountNumber, Date.valueOf(billDate), biItemMap.get(keySet));
             LOGGER.info("ratedCdrs queried");
             callReportObject = rch.getCallReport(AccountNumber, Date.valueOf(billDate));
             for (Object eachReport : callReportObject) {
@@ -320,6 +327,7 @@ public class ReportUtils {
             itemisation.setItemisation(AccountNumber, AccountName, RequireTelephony, RequireService, rCdrPack.get(AccountNumber), servicePack.get(AccountNumber), biItemMap.get(keySet));
             itemisation.setEmailAddress(accountAuthorizedEmailMap.get(AccountNumber));
             itemisation.setBiSummary(biSummaryItemMap.get(keySet));
+            LOGGER.info("Itemisation data is set.");
             createPDF(itemisation, runId, invoiceNumber);
 
         }
