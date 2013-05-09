@@ -94,8 +94,8 @@ public class ReportsHelper {
      */
     public static void main(String[] s) throws Exception {
 
-        ReportsHelper mObj = new ReportsHelper();
-        mObj.generateReports("TH14225500-2", "", "", "", "2012-06-26");
+        ReportsHelper mObj = new ReportsHelper("00Db0000000HR5G!AQoAQLkpAnOgqhXFowaq95M41vdMhBVLrYwjmyw5z_bFAQMcO._zVlWSkrZj_bP04JrlPzwZO9LxzT948BwZTXRMyN29zIJ2","https://eu2.salesforce.com/services/Soap/u/19.0/00Db0000000HR5G");
+        mObj.generateReports("", "", "B-00011239", "", "2013-05-01");
 
     }
 
@@ -173,9 +173,9 @@ public class ReportsHelper {
 
                 HashMap<String,String> accountNumInvoiceMap = new HashMap<String,String>();
 
-                accountNumInvoiceMap = utils.generateInvoiceNumbers(accountNumbers);
+                //accountNumInvoiceMap = utils.generateInvoiceNumbers(accountNumbers);
 
-                LOGGER.info("Fetched Invoice Numbers : " + accountNumInvoiceMap );
+                //LOGGER.info("Fetched Invoice Numbers : " + accountNumInvoiceMap );
 
                 /*Loop through each bill and create pdf. 
                  */
