@@ -31,8 +31,125 @@ public final class AppConfig {
     private String successSubject;
     private String pdfCreateDirectory;
     private String pdfGetResource;
-	private String pdfArchiveDir;
+    private String pdfArchiveDir;
     private String pdfErrorDir;
+    private String addressLine1;
+    private String addressLine2;
+    private String addressLine3;
+    private String smtphostname;
+    private String adminUserId;
+    private String adminPassword;
+    private String fromAlias;
+    private String replytoaddress;
+    private String smtpport;
+    private String toAddressList;
+    private String mailSubject;
+    private String mailBody;
+    private String attachmentPath;
+
+    public String getAddressLine1() {
+        return addressLine1;
+    }
+
+    public void setAddressLine1(String addressLine1) {
+        this.addressLine1 = addressLine1;
+    }
+
+    public String getAddressLine2() {
+        return addressLine2;
+    }
+
+    public void setAddressLine2(String addressLine2) {
+        this.addressLine2 = addressLine2;
+    }
+
+    public String getAddressLine3() {
+        return addressLine3;
+    }
+
+    public void setAddressLine3(String addressLine3) {
+        this.addressLine3 = addressLine3;
+    }
+
+    public String getSmtphostname() {
+        return smtphostname;
+    }
+
+    public void setSmtphostname(String smtphostname) {
+        this.smtphostname = smtphostname;
+    }
+
+    public String getAdminUserId() {
+        return adminUserId;
+    }
+
+    public void setAdminUserId(String adminUserId) {
+        this.adminUserId = adminUserId;
+    }
+
+    public String getAdminPassword() {
+        return adminPassword;
+    }
+
+    public void setAdminPassword(String adminPassword) {
+        this.adminPassword = adminPassword;
+    }
+
+    public String getFromAlias() {
+        return fromAlias;
+    }
+
+    public void setFromAlias(String fromAlias) {
+        this.fromAlias = fromAlias;
+    }
+
+    public String getReplytoaddress() {
+        return replytoaddress;
+    }
+
+    public void setReplytoaddress(String replytoaddress) {
+        this.replytoaddress = replytoaddress;
+    }
+
+    public String getSmtpport() {
+        return smtpport;
+    }
+
+    public void setSmtpport(String smtpport) {
+        this.smtpport = smtpport;
+    }
+
+    public String getToAddressList() {
+        return toAddressList;
+    }
+
+    public void setToAddressList(String toAddressList) {
+        this.toAddressList = toAddressList;
+    }
+
+    public String getMailSubject() {
+        return mailSubject;
+    }
+
+    public void setMailSubject(String mailSubject) {
+        this.mailSubject = mailSubject;
+    }
+
+    public String getMailBody() {
+        return mailBody;
+    }
+
+    public void setMailBody(String mailBody) {
+        this.mailBody = mailBody;
+    }
+
+    public String getAttachmentPath() {
+        return attachmentPath;
+    }
+
+    public void setAttachmentPath(String attachmentPath) {
+        this.attachmentPath = attachmentPath;
+    }  
 
     public String getSuccessSubject() {
         return successSubject;

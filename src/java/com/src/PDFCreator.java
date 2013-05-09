@@ -68,11 +68,12 @@ public class PDFCreator {
         document.addSubject("Report for : " + itemisation.getAccountNumber());
         document.addKeywords(itemisation.getEmailAddress() != null ? itemisation.getEmailAddress() : "" );
         document.addAuthor("MP");
-        document.addCreator("MakePositve Ltd.");
+        document.addCreator("MakePositive Ltd.");
     }
 
     private static void addTitlePage(Document document, String invoiceNumnber)
-            throws DocumentException {
+            throws DocumentException, ResilientException {
+        AppConfig config = Configurator.getAppConfig();
         PdfPTable table8 = new PdfPTable(3);
         table8.setWidthPercentage(100f);
         table8.setHorizontalAlignment(100);
@@ -89,7 +90,7 @@ public class PDFCreator {
             cell8.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table8.addCell(cell8);
 
-            cell8 = new PdfPCell(new Paragraph("Resilient Networks PLC ", smallFont));
+            cell8 = new PdfPCell(new Paragraph(config.getAddressLine1(), smallFont));
             cell8.setBorder(0);
             cell8.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table8.addCell(cell8);
@@ -99,13 +100,13 @@ public class PDFCreator {
             cell8.setHorizontalAlignment(Element.ALIGN_TOP);
             cell8.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table8.addCell(cell8);
-            cell8 = new PdfPCell(new Paragraph("Date (And Tax Point):" + ReportUtils.getBillPeriod(), smallFont));
+            cell8 = new PdfPCell(new Paragraph(config.getAddressLine2(), smallFont));
             cell8.setBorder(0);
             cell8.setHorizontalAlignment(Element.ALIGN_TOP);
             cell8.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table8.addCell(cell8);
 
-            cell8 = new PdfPCell(new Paragraph("25 - 27 Shaftesbury Avenue", smallFont));
+            cell8 = new PdfPCell(new Paragraph(config.getAddressLine3(), smallFont));
             cell8.setBorder(0);
             cell8.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table8.addCell(cell8);

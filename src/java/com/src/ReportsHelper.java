@@ -16,6 +16,7 @@ import Common.src.com.Config.AppConfig;
 import Common.src.com.Config.Configurator;
 import Common.src.com.Exception.ResilientException;
 import Common.src.com.SFDC.EnterpriseSession;
+import Common.src.com.util.EmailUtils;
 import Common.src.com.util.SalesforceUtils;
 import com.bean.BillItem;
 import com.bean.CallReport;
@@ -67,16 +68,22 @@ public class ReportsHelper {
     /*Constructor. This initiates the SFDC Connection and other variables.*/
     public ReportsHelper() throws ResilientException, Exception {
 
-        appConfig = Configurator.getAppConfig();
-
-        try {
-            eSession = SalesforceUtils.initMasterSession(appConfig);
-        } catch (Exception de) {
-            LOGGER.error("Exception while initializing SFDC Login Session...: " + de);
+    }
+    
+    public ReportsHelper(String sessionId, String serverURL)
+        throws ResilientException, Exception{
+        try
+        {
+            eSession = SalesforceUtils.initMasterSession(sessionId, serverURL);
+            utils = new ReportUtils();
+            appConfig = Configurator.getAppConfig();
+        }
+        catch(Exception de)
+        {
+            LOGGER.error((new StringBuilder()).append("Exception while initializing SFDC Login Session...: ").append(de).toString());
             throw new ResilientException(de.getMessage());
         }
         querySfdc = new QuerySFDC(eSession);
-        utils = new ReportUtils();
     }
 
     /**
@@ -117,32 +124,32 @@ public class ReportsHelper {
 
             /*Add AccountNumber in the where clause if it is not null.*/
             if (utils.isNotBlank(accountNumber)) {
-                query = utils.addWhereClause("Espresso_Bill__Bill__r.Espresso_Bill__Account__r.Espresso_PC__Account_Number__c", accountNumber, query);
+                query = utils.addWhereClause("Bill__r.Account__r.Account_Number__c", accountNumber, query);
             }
 
             /*Add billRunId in the where clause if it is not null.*/
             if (utils.isNotBlank(billRunId)) {
-                query = utils.addWhereClause("Espresso_Bill__Bill__r.Espresso_Bill__Bill_Run_ID__c", Integer.valueOf(billRunId), query);
+                query = utils.addWhereClause("Bill__r.Bill_Run__r.Name", billRunId, query);
             }
 
             /*Add billId in the where clause if it is not null.*/
             if (utils.isNotBlank(billId)) {
-                query = utils.addWhereClause("Espresso_Bill__Bill__r.Name", billId, query);
+                query = utils.addWhereClause("Bill__r.Name", billId, query);
             }
 
             /*Add Where clause to only retrieve bills that require Itemisation*/
-            query = utils.addWhereClause("Espresso_Bill__Bill__r.Espresso_Bill__Account__r.Itemisation_Required__c", true, query);
+            query = utils.addWhereClause("Bill__r.Account__r.Itemisation_Required__c", Boolean.valueOf(true), query);
 
             /*Below code is to get the latest Bill in case only Account Number is mentioned.*/
             if (utils.isNotBlank(accountNumber) && utils.isBlank(billRunId) && utils.isBlank(billId)) {
                 String latestBillId = utils.getLatestBillId(accountNumber, querySfdc);
                 if (utils.isNotBlank(latestBillId)) {
-                    query = utils.addWhereClause("Espresso_Bill__Bill__r.Name", latestBillId, query);
+                    query = utils.addWhereClause("Bill__r.Name", latestBillId, query);
                     LOGGER.info("Queried Latest Bill id from SFDC. Bill ID : " + latestBillId);
                 }
             }
             
-            query += " AND Espresso_Bill__Total_Gross_Amount__c != 0";
+            query = (new StringBuilder()).append(query).append(" AND Total_Gross_Amount__c != 0").toString();
             //query += " AND Espresso_Bill__Total_Gross_Amount__c > 0 AND Espresso_Bill__Type__c != 'Event'";
             //LOGGER.info("Query prepared : " + query);
 
@@ -183,7 +190,9 @@ public class ReportsHelper {
             LOGGER.error("Exception occured while preparing data for Bill Item. Cause : " + e.getCause().getMessage());
             emailBody.append("Reports could not be generated for run Id :").append(runId).append(". Cause :").append(e.getCause().getMessage()).append(System.getProperty("line.separator"));
             emailBody.append("Inputs for generating the reports : ").append("</br>").append(" Account Number :").append(accountNumber).append("</br>").append(" Bill Run Id :").append(billRunId).append("</br>").append("Bill Id :").append(billId).append("\n");
-            ewsObj.sendEmail(appConfig.getErrorSubject() + ". RunId :" + runId, emailBody.toString());
+            EmailUtils email = new EmailUtils();
+            EmailUtils _tmp = email;
+            EmailUtils.sendEMail(appConfig, appConfig.getToAddressList(), (new StringBuilder()).append(appConfig.getErrorSubject()).append(". RunId :").append(runId).toString(), emailBody.toString());
             System.gc();
             return -1;
         }
@@ -191,7 +200,9 @@ public class ReportsHelper {
         //LOGGER.info("returning the list" + biItemList);
         emailBody.append("Successfully generated the Reports for Run Id :").append(runId).append("</br>");
         emailBody.append("Inputs for generating the reports : ").append("</br>").append(" Account Number :").append(accountNumber).append("</br>").append(" Bill Run Id :").append(billRunId).append("</br>").append("Bill Id :").append(billId).append("\n");
-        ewsObj.sendEmail(appConfig.getSuccessSubject() + ". RunId :" + runId, emailBody.toString());
+        EmailUtils email = new EmailUtils();
+        EmailUtils _tmp1 = email;
+        EmailUtils.sendEMail(appConfig, appConfig.getToAddressList(), (new StringBuilder()).append(appConfig.getSuccessSubject()).append(". RunId :").append(runId).toString(), emailBody.toString());
         System.gc();
         return biItemMap.size();
     }

@@ -52,17 +52,17 @@ public class Configurator {
                 FileInputStream fis ;
                 
                 try{
-                    fis = new FileInputStream("C:/MakePos/Resilient.properties");
+                    fis = new FileInputStream("C:/MakePos/GenerateInvoice.properties");
                 }catch(FileNotFoundException e){
                     try{
-                        LOGGER.info("Canonical path ====" + directory.getCanonicalPath().substring(0,directory.getCanonicalPath().lastIndexOf("\\")) + "\\webapps\\GenerateReports\\Resilient.properties");
-                        fis = new FileInputStream(directory.getCanonicalPath().substring(0,directory.getCanonicalPath().lastIndexOf("\\")) + "\\webapps\\GenerateReports\\Resilient.properties"); 
+                        LOGGER.info("Canonical path ====" + directory.getCanonicalPath().substring(0,directory.getCanonicalPath().lastIndexOf("\\")) + "\\webapps\\GenerateReports\\GenerateInvoice.propertiess");
+                        fis = new FileInputStream(directory.getCanonicalPath().substring(0,directory.getCanonicalPath().lastIndexOf("\\")) + "\\webapps\\GenerateReports\\GenerateInvoice.properties"); 
                     }catch(Exception e1){
-                        LOGGER.info("Canonical path ====" + directory.getCanonicalPath()+ "\\webapps\\GenerateReports\\Resilient.properties");
-                        fis = new FileInputStream(directory.getCanonicalPath()+ "\\webapps\\GenerateReports\\Resilient.properties"); 
+                        LOGGER.info("Canonical path ====" + directory.getCanonicalPath()+ "\\webapps\\GenerateReports\\GenerateInvoice.properties");
+                        fis = new FileInputStream(directory.getCanonicalPath()+ "\\webapps\\GenerateReports\\GenerateInvoice.properties"); 
                     }
                 }catch(Exception e){
-                    fis = new FileInputStream("C:/Resilient.properties");
+                    fis = new FileInputStream("C:/GenerateInvoice.properties");
                 }                
                              
                 props.load(fis);
@@ -87,8 +87,20 @@ public class Configurator {
                 appConfig.setSuccessSubject(props.getProperty("email.confirmationEmail.Success.Subject"));
                 appConfig.setPdfCreateDirectory(props.getProperty("pdf.reports.Directory"));
                 appConfig.setPdfGetResource(props.getProperty("pdf.reports.Resource"));
-				appConfig.setPdfArchiveDir(props.getProperty("email.reports.archive"));
+		appConfig.setPdfArchiveDir(props.getProperty("email.reports.archive"));
                 appConfig.setPdfErrorDir(props.getProperty("email.reports.error"));
+                appConfig.setAddressLine1(props.getProperty("pdf.addressLine1"));
+                appConfig.setAddressLine2(props.getProperty("pdf.addressLine2"));
+                appConfig.setAddressLine3(props.getProperty("pdf.addressLine3"));
+                appConfig.setAdminPassword(props.getProperty("email.adminPassword"));
+                appConfig.setAdminUserId(props.getProperty("email.adminUserId"));
+                appConfig.setFromAlias(props.getProperty("email.fromAlias"));
+                appConfig.setReplytoaddress(props.getProperty("email.replyToAddress"));
+                appConfig.setSmtphostname(props.getProperty("email.smtpHostName"));
+                appConfig.setSmtpport(props.getProperty("email.smtpPort"));
+                appConfig.setToAddressList(props.getProperty("email.toAddressList"));
+                appConfig.setMailBody(props.getProperty("email.mailBody"));
+                appConfig.setMailSubject(props.getProperty("email.mailSubject"));
 
 
         } catch (Exception e) {

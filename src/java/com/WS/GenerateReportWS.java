@@ -34,10 +34,11 @@ public class GenerateReportWS {
      * Web service operation
      */
     @WebMethod(operationName = "generateReports")
-    public Integer generateReports(@WebParam(name = "accountNumber") String accountNumber, @WebParam(name = "billRunId") String billRunId, @WebParam(name = "billId") String billId, @WebParam(name = "runId") String runId, @WebParam(name = "billDate") String billDate) {
+    public Integer generateReports(@WebParam(name = "accountNumber") String accountNumber, @WebParam(name = "billRunId") String billRunId, @WebParam(name = "billId") String billId, 
+                                    @WebParam(name = "runId") String runId, @WebParam(name = "billDate") String billDate, @WebParam(name = "sessionId") String sessionId, @WebParam(name = "serverURL") String serverURL) {
         
         try{
-            ReportsHelper obj = new ReportsHelper();
+            ReportsHelper obj = new ReportsHelper(sessionId, serverURL);
             return obj.generateReports(accountNumber, billRunId, billId, runId, billDate); 
             //System.out.println("ret List " + retList.get(0).getAccountNumber());
             //return retList;
@@ -60,5 +61,10 @@ public class GenerateReportWS {
             LOGGER.error("Exception occured while emailing reports. Cause : " + e.getMessage());
         }
         return "";
+    }
+    
+    public Boolean isWebServiceRunning()
+    {
+        return Boolean.valueOf(true);
     }
 }

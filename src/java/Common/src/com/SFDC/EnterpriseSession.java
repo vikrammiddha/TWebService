@@ -38,6 +38,8 @@ public class EnterpriseSession {
     private SoapBindingStub binding;
     private LoginResult loginResult = null;
     AppConfig appConfig = null;
+    public String sessionId = "";
+    public String serverURL = "";
 
     public EnterpriseSession() {
     }
@@ -49,8 +51,9 @@ public class EnterpriseSession {
      * @return
      * @throws ResilientException 
      */
-    public boolean connect(final AppConfig appConfig) throws ResilientException {
-            this.appConfig = appConfig;
+    public boolean connect(String sessionId, String serverURL) throws ResilientException {
+            this.sessionId = sessionId;
+            this.serverURL = serverURL;
             return login();
     }
 
@@ -71,13 +74,8 @@ public class EnterpriseSession {
          * RuntimeException("Can't find WSDL.", e); }
          */
         try {
-            // SforceService service = new
-            // SforceServiceLocator(wsdlURL.toString(), new
-            // QName("urn:partner.soap.sforce.com", "SforceService"));
-            // binding = (SoapBindingStub)service.getSoap();
-
-            binding = (SoapBindingStub) new SforceServiceLocator().getSoap(new URL(appConfig.getSfdcEndpoint()));
-            LOGGER.info("The login url is: " + binding._getProperty(SoapBindingStub.ENDPOINT_ADDRESS_PROPERTY));
+            SforceServiceLocator svc = new SforceServiceLocator();
+            binding = new SoapBindingStub(svc);
         }catch (Exception ex) {
             LOGGER.error("creating binding to soap service, error was: \n" + ex.getMessage());
             throw new ResilientException("Error while creating binding soap service " + ex.getMessage(), ex);
@@ -88,44 +86,13 @@ public class EnterpriseSession {
 
         // Attempt the login giving the user feedback
         LOGGER.info("Login into Salesforce.com now....");
-        try {
-            loginResult = binding.login(appConfig.getSfdcUsername(),
-            appConfig.getSfdcPassword());
-        } catch (LoginFault lf) {
-            LOGGER.error("Login errors " + lf.getExceptionMessage());
-            throw new ResilientException("Error while creating binding soap service"+lf.getExceptionMessage(),lf);
-
-        } catch (UnexpectedErrorFault uef) {
-            LOGGER.error("Login errors " + uef.getExceptionMessage());
-            throw new ResilientException("Error while creating binding soap service"+uef.getExceptionMessage(),uef);
-
-        } catch (RemoteException re) {
-            LOGGER.error("Login errors " + re.getMessage());
-            throw new ResilientException("Error while creating binding soap service"+re.getMessage(),re);
-
-
-        }
-
-        LOGGER.info("The session id is: " + loginResult.getSessionId());
-        LOGGER.info("The new server url is: " + loginResult.getServerUrl());
-
+        
         // set the session header for subsequent call authentication
-        binding._setProperty(SoapBindingStub.ENDPOINT_ADDRESS_PROPERTY,
-                                loginResult.getServerUrl());
-
-        // Create a new session header object and set the session id to that
-        // returned by the login
+        binding._setProperty("javax.xml.rpc.service.endpoint.address", serverURL);
         SessionHeader sh = new SessionHeader();
-        sh.setSessionId(loginResult.getSessionId());
+        sh.setSessionId(sessionId);
         binding.setHeader(new SforceServiceLocator().getServiceName()
-                        .getNamespaceURI(), "SessionHeader", sh);
-
-        if (loginResult.isPasswordExpired()) {
-            LOGGER.error("An error has occurred. Your password has expired.");
-            return false;
-        }
-
-        LOGGER.info("EnterpriseSession: login(): Successfully Connected to SFDC...........");
+                        .getNamespaceURI(), "SessionHeader", sh);             
         return true;
     }
 

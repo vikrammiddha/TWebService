@@ -8,6 +8,7 @@ import com.bean.CallReport;
 import com.bean.InvoiceNumber;
 import com.bean.Itemisation;
 import com.bean.RatedCdr;
+import ewsconnect.EWSConnect;
 import ewsconnect.EWSConnection;
 import java.sql.Date;
 import java.sql.SQLException;
@@ -150,7 +151,7 @@ public class ReportUtils {
     public String getLatestBillId(String accountNumber, QuerySFDC querySFDC) throws ResilientException {
 
         String query = "Select Name from Espresso_Bill__Bill__c ";
-        query = addWhereClause("ESPRESSO_BILL__ACCOUNT__R.ESPRESSO_PC__ACCOUNT_NUMBER__C", accountNumber, query);
+        query = addWhereClause("ACCOUNT__R.ACCOUNT_NUMBER__C", accountNumber, query);
         query += " ORDER BY NAME DESC LIMIT 1";
 
         HashMap<String, Object>[] resultMap = querySFDC.executeQuery(query);
@@ -176,22 +177,21 @@ public class ReportUtils {
 
                 HashMap<String, Object> hm = resultMap[i];
                 BillItem biObj = new BillItem();               
-                biObj.setBillId((String) hm.get("ESPRESSO_BILL__BILL__C"));
-                biObj.setAssetName((String) hm.get("ESPRESSO_BILL__ASSET__R.NAME"));
-                biObj.setBillDate((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__BILL_DATE__C"));
-                //biObj.setBillPeriod((String)hm.get("Espresso_Bill__Asset__R.Name"));
-                biObj.setDateFrom(getFormatedDate((String) hm.get("ESPRESSO_BILL__DATE_FROM__C")));
-                biObj.setDateTo(getFormatedDate((String) hm.get("ESPRESSO_BILL__DATE_TO__C")));
-                biObj.setRetalGross((String) hm.get("ESPRESSO_BILL__GROSS_AMOUNT_1__C"));
-                biObj.setAccountNumber((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.ESPRESSO_PC__ACCOUNT_NUMBER__C"));
-                biObj.setAccountName((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.NAME"));
-                biObj.setIdentifier((String) hm.get("ESPRESSO_BILL__ACCOUNT_SERVICE_LINE__R.ESPRESSO_PC__BILLING_IDENTIFIER__C"));
-                biObj.setRequireServItemisation((((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.SUMMARY_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")) ? true : false);
-                biObj.setRequireTelItemisation((((String) hm.get("ESPRESSO_BILL__BILL__R.ESPRESSO_BILL__ACCOUNT__R.TEL_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")) ? true : false);
-                biObj.setOfferName((String) hm.get("ESPRESSO_BILL__ASSET__R.ESPRESSO_PC__OFFER__R.NAME"));
-                biObj.setOfferSFDCId((String) hm.get("ESPRESSO_BILL__ASSET_R.ESPRESSO_PC__OFFER_C"));   
-                biObj.setAggregationId((String) hm.get("ESPRESSO_BILL__AGGREGATED_DATA__R.ESPRESSO_BILL__AGGREGATE_BY_VALUE__C"));
-                biObj.setBillType((String) hm.get("ESPRESSO_BILL__TYPE__C"));
+                biObj.setBillId((String)hm.get("BILL__C"));
+                biObj.setAssetName((String)hm.get("ASSET__R.NAME"));
+                biObj.setBillDate((String)hm.get("BILL__R.BILL_DATE__C"));
+                biObj.setDateFrom(getFormatedDate((String)hm.get("DATE_FROM__C")));
+                biObj.setDateTo(getFormatedDate((String)hm.get("DATE_TO__C")));
+                biObj.setRetalGross((String)hm.get("GROSS_AMOUNT_1__C"));
+                biObj.setAccountNumber((String)hm.get("BILL__R.ACCOUNT__R.ACCOUNTNUMBER"));
+                biObj.setAccountName((String)hm.get("BILL__R.ACCOUNT__R.NAME"));
+                biObj.setIdentifier((String)hm.get("ACCOUNT_SERVICE_LINE__R.BILLING_IDENTIFIER__C"));
+                biObj.setRequireServItemisation(Boolean.valueOf(((String)hm.get("BILL__R.ACCOUNT__R.SUMMARY_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")));
+                biObj.setRequireTelItemisation(Boolean.valueOf(((String)hm.get("BILL__R.ACCOUNT__R.TEL_ITEMISATION_REQUIRED__C")).equalsIgnoreCase("true")));
+                biObj.setOfferName((String)hm.get("ASSET__R.OFFER__R.NAME"));
+                biObj.setOfferSFDCId((String)hm.get("ASSET_R.OFFER_C"));
+                biObj.setAggregationId((String)hm.get("AGGREGATED_DATA__R.AGGREGATE_BY_VALUE__C"));
+                biObj.setBillType((String)hm.get("TYPE__C"));
                 
                 retBIList.add(biObj);
                 
@@ -229,8 +229,8 @@ public class ReportUtils {
             return retMap;
         }
 
-        String query = "Select EMAIL,Account.Espresso_PC__Account_Number__c from Contact where Authorised_Contact__c = true and "
-                + "Account.Espresso_PC__Account_Number__c IN (" + accountNumberExp + ")";
+        String query = "Select EMAIL,Account.AccountNumber from Contact where Authorised_Contact__c = true and "
+                + "Account.AccountNumber IN (" + accountNumberExp + ")";
         LOGGER.info("Query String to get Email Addresses : " + query);
         try {
             HashMap<String, Object>[] resultMap = querySFDC.executeQuery(query);
@@ -238,7 +238,7 @@ public class ReportUtils {
             if (resultMap.length > 0) {
                 for (int i = 0; i < resultMap.length; i++) {
                     HashMap<String, Object> hm = resultMap[i];
-                    retMap.put((String) hm.get("ACCOUNT.ESPRESSO_PC__ACCOUNT_NUMBER__C"), (String) hm.get("EMAIL"));
+                    retMap.put((String)hm.get("ACCOUNT.ACCOUNTNUMBER"), (String)hm.get("EMAIL"));
                 }
             }
 
@@ -329,7 +329,9 @@ public class ReportUtils {
             itemisation.setBiSummary(biSummaryItemMap.get(keySet));
             LOGGER.info("Itemisation data is set.");
             createPDF(itemisation, runId, invoiceNumber);
-
+            EWSConnect ewsObj = new EWSConnect();
+            ewsObj.emailReports();
+            
         }
     }
 

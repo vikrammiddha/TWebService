@@ -7,6 +7,7 @@ package ewsconnect;
 import Common.src.com.Config.AppConfig;
 import Common.src.com.Config.Configurator;
 import Common.src.com.Exception.ResilientException;
+import Common.src.com.util.EmailUtils;
 import com.itextpdf.text.pdf.PdfReader;
 import java.io.File;
 import java.io.IOException;
@@ -38,13 +39,7 @@ public class EWSConnection {
     private static Logger LOGGER = Logger.getLogger(EWSConnection.class);
     
     public EWSConnection() throws URISyntaxException, ResilientException {
-       appConfig = Configurator.getAppConfig(); 
-       EWSConnection.service = new ExchangeService();
-       ExchangeCredentials credentials = new WebCredentials(appConfig.getUserName(), appConfig.getPassword());
-       service.setCredentials(credentials);
-       URI uri = new URI(appConfig.getUri());
-       service.setUrl(uri);
-       
+       appConfig = Configurator.getAppConfig();        
     }
 
     private boolean process(File file) {
@@ -71,13 +66,10 @@ public class EWSConnection {
         boolean sent = false;
         LOGGER.info("Emailing Report : " + path);
         try{
-            EmailMessage msg = new EmailMessage(service);
-            msg.setSubject("Itemisation Report - ResilientPLC");
-
-            msg.setBody(MessageBody.getMessageBodyFromText("Sent using the EWS Managed API."));
-            msg.getToRecipients().add(emailToAddress);
-            msg.getAttachments().addFileAttachment(path);
-            msg.send();
+            EmailUtils email = new EmailUtils();
+            appConfig.setAttachmentPath(path);
+            EmailUtils _tmp = email;
+            EmailUtils.sendEMail(appConfig, emailToAddress, "Itemisation Report", "");
             sent = true;
         }catch(Exception e){
             LOGGER.error("Could not send email for the report :" + path + ". Cause :" + e.getMessage());
@@ -124,6 +116,7 @@ public class EWSConnection {
             for (int i = 0; i < children.length; i++) {
                 file = new File(dir.getAbsoluteFile()+"\\"+children[i]);
                 processedFile = process(file);
+                file = new File(dir.getAbsoluteFile()+"\\"+children[i]);
                 if (processedFile){
                     movedFile = file.renameTo(new File(archiveDir, file.getName()));
                 }else{

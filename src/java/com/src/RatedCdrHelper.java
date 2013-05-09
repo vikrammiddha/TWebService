@@ -34,8 +34,7 @@ public class RatedCdrHelper {
     private static Logger LOGGER = Logger.getLogger(RatedCdrHelper.class);
 
     public RatedCdrHelper() {
-        this.session = HibernateUtil.getSessionFactory(false).getCurrentSession();
-        this.sessionInvoice = HibernateUtil.getSessionFactory(true).getCurrentSession();
+        this.session = HibernateUtil.getSessionFactory(false).getCurrentSession();        
     }
     
     public ArrayList<InvoiceNumber> getInvoiceNumbers(Set<String> accNumbers){
@@ -52,7 +51,8 @@ public class RatedCdrHelper {
         if(biList != null && biList.size() > 0){
             for(BillItem bi : biList){
                 LOGGER.info("Aggregation Ids -  : " + bi.getAggregationId());
-                aggIds.add(bi.getAggregationId());
+                if(bi.getAggregationId() != null)
+                    aggIds.add(bi.getAggregationId());
             }
         }
         
@@ -103,7 +103,6 @@ public class RatedCdrHelper {
     public void closeSession() throws SQLException{
         this.session.clear();
         this.session.close();
-        this.sessionInvoice.clear();
-        this.sessionInvoice.close();
+        
     }
 }

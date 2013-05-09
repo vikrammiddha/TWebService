@@ -36,10 +36,10 @@ public final class SalesforceUtils {
      * @return a populated PartnerSession for the Master session.
      * @throws ResilientException 
      */
-    public static EnterpriseSession initMasterSession(final AppConfig appConfig) throws ResilientException {
+    public static EnterpriseSession initMasterSession(String sessionId, String serverURL) throws ResilientException {
     	LOGGER.info("SalesforceUtils: initMasterSession(): Connecting to SFDC...........");
     	EnterpriseSession session = new EnterpriseSession();
-        boolean connected = session.connect(appConfig);
+        boolean connected = session.connect(sessionId, serverURL);
         if(connected) {
         	return session;
         }
